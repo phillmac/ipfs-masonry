@@ -24,10 +24,10 @@
 		<div class="card-columns my-3">
 			{{#folders}}
 				{{#images}}
-					<a href="http://natoboram.mynetgear.com:8080/ipfs/{{cidv1}}/{{{path}}}/{{.}}">
+					<a href="https://{{cidv1}}.cf-ipfs.com/{{{path}}}/{{.}}">
 						<div class="card">
 							<div class="card-header">{{.}}</div>
-							<img src="http://natoboram.mynetgear.com:8080/ipfs/{{cidv1}}/{{{path}}}/{{.}}" class="card-img-top" alt="{{.}}">
+							<img src="https://{{cidv1}}.cf-ipfs.com/{{{path}}}/{{.}}" class="card-img-top" alt="{{.}}">
 						</div>
 					</a>
 				{{/images}}
@@ -35,10 +35,3 @@
 		</div>
 	{{/galleries}}
 </main>
-
-<!--
-	A few nodes.
-	NatoBoram : http://natoboram.mynetgear.com:8080/ipfs/{{cidv1}}/{{{path}}}/{{.}} 
-	LineageOS on IPFS : http://lineageos-on-ipfs.com/ipfs/{{cidv1}}/{{{path}}}/{{.}} 
-	CloudFlare : https://{{cidv1}}.cf-ipfs.com/{{{path}}}/{{.}}
--->
