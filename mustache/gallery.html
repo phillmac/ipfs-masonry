@@ -10,20 +10,22 @@
 <main>
 	{{#galleries}}
 		<!-- Description -->
-		<div class="card my-3">
-			<div class="card-body">
-				<h5 class="card-title">{{title}}</h5>
-				<p class="card-text">{{{text}}}</p>
+		{{#title}}
+			<div class="card my-3">
+				<div class="card-body">
+					<h5 class="card-title">{{title}}</h5>
+					<p class="card-text">{{{text}}}</p>
+				</div>
 			</div>
-		</div>
+		{{/title}}
 		<!-- Gallery -->
 		<div class="card-columns my-3">
 			{{#folders}}
 				{{#images}}
-					<a href="https://{{base32}}.cf-ipfs.com/{{name}}/{{.}}">
+					<a href="https://{{base32}}.cf-ipfs.com/{{{path}}}/{{.}}">
 						<div class="card">
 							<div class="card-header">{{.}}</div>
-							<img src="https://{{base32}}.cf-ipfs.com/{{name}}/{{.}}" class="card-img-top" alt="{{.}}">
+							<img src="https://{{base32}}.cf-ipfs.com/{{{path}}}/{{.}}" class="card-img-top" alt="{{.}}">
 						</div>
 					</a>
 				{{/images}}
