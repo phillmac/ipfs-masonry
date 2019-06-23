@@ -15,7 +15,7 @@ const gallery = {
 		fetch("./json/gallery.json").then(response => response.json()).then(json => {
 			json.galleries.forEach((element, index) => {
 				if (element.text !== "")
-					fetch("https://" + element.base32 + ".cf-ipfs.com/" + element.text).then(response => response.text()).then(text => {
+					fetch("https://" + element.cidv1 + ".cf-ipfs.com/" + element.text).then(response => response.text()).then(text => {
 						json.galleries[index].text = gallery.md.render(text);
 						document.querySelector("#gallery").innerHTML = templates.gallery.render(json);
 					});
@@ -49,7 +49,7 @@ const gallery = {
 			// IPFS Pin Add
 			fetch("./json/gallery.json").then(response => response.json()).then(json => {
 				json.galleries.forEach(element => {
-					gallery.ipfs.pin.add(element.base32, function (err, res) {
+					gallery.ipfs.pin.add(element.cidv1, function (err, res) {
 						console.log(err, res);
 					});
 				});
