@@ -8,7 +8,7 @@ Provides an interface to display a [masonry](https://getbootstrap.com/docs/4.3/c
 
 You can clone this project and add a `/json/gallery.json` to display a custom gallery.
 
-```jsonc
+```json
 {
   "author": "",      // Title at the top of the page
   "description": "", // Description of the page
