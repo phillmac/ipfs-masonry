@@ -1,0 +1,33 @@
+<!-- Header -->
+<header>
+	<div class="card my-3">
+		<div class="card-body">
+			<h5 class="card-title">{{author}}</h5>
+			<p class="card-text">{{{description}}}</p>
+		</div>
+	</div>
+</header>
+<main>
+	{{#galleries}}
+		<!-- Description -->
+		<div class="card my-3">
+			<div class="card-body">
+				<h5 class="card-title">{{title}}</h5>
+				<p class="card-text">{{{text}}}</p>
+			</div>
+		</div>
+		<!-- Gallery -->
+		<div class="card-columns my-3">
+			{{#folders}}
+				{{#images}}
+					<a href="https://{{base32}}.cf-ipfs.com/{{name}}/{{.}}">
+						<div class="card">
+							<div class="card-header">{{.}}</div>
+							<img src="https://{{base32}}.cf-ipfs.com/{{name}}/{{.}}" class="card-img-top" alt="{{.}}">
+						</div>
+					</a>
+				{{/images}}
+			{{/folders}}
+		</div>
+	{{/galleries}}
+</main>
