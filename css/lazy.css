@@ -1,0 +1,15 @@
+.card-img-top.lazyload,
+.card-img-top.lazyloading {
+	opacity: 0;
+	transition: opacity 1000ms;
+}
+
+.card-img-top.lazyloaded {
+	opacity: 1;
+	transition: opacity 1000ms;
+}
+
+.card-img-top.lazyloaded~.placeholder,
+.card-img-top.lazyloaded~.placeholder .placeholder {
+	display: none;
+}

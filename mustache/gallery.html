@@ -26,8 +26,18 @@
 				{{#images}}
 					<a href="https://{{cidv1}}.cf-ipfs.com/{{{path}}}/{{.}}">
 						<div class="card">
+
+							<!-- Header -->
 							<div class="card-header">{{.}}</div>
-							<img src="https://{{cidv1}}.cf-ipfs.com/{{{path}}}/{{.}}" class="card-img-top" alt="{{.}}">
+
+							<!-- Image -->
+							<img data-src="https://{{cidv1}}.cf-ipfs.com/{{{path}}}/{{.}}" class="card-img-top lazyload" alt="{{.}}" />
+
+							<!-- Placeholder -->
+							<img src="assets/360x360-00000000.png" class="card-img placeholder" />
+							<div class="card-img-overlay d-flex align-items-center justify-content-center placeholder">
+								<div class="spinner-grow text-dark placeholder"></div>
+							</div>
 						</div>
 					</a>
 				{{/images}}
