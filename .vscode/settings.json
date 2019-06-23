@@ -1,0 +1,10 @@
+{
+	"editor.formatOnSave": true,
+	"editor.insertSpaces": false,
+	"html.format.indentHandlebars": true,
+	"html.format.maxPreserveNewLines": 1,
+	"html.format.wrapLineLength": 0,
+	"jshint.options": {
+		"esversion": 8
+	}
+}
