@@ -3,7 +3,9 @@
 	<div class="card my-3">
 		<div class="card-body">
 			<h5 class="card-title">{{author}}</h5>
-			<p class="card-text">{{{description}}}</p>
+			{{#description}}
+				<p class="card-text">{{{description}}}</p>
+			{{/description}}
 		</div>
 	</div>
 </header>
