@@ -79,4 +79,4 @@ The end result should look like this.
 
 ![Gallery](./assets/gallery.png)
 
-There's a preview available [here](https://bafybeigto4ksg5td7gnojadzozqv4zn76p2jud3idjzsfgjeyk33ssslai.cf-ipfs.com).
+There's a preview available [here](https://bafybeihgnmhsxqp6nk62oxvizci7aohlw2t675vubam6aeemkwneebcory.cf-ipfs.com).

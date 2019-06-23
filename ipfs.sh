@@ -1,2 +1,2 @@
 #!/bin/sh
-ipfs add -wr --chunker=rabin js json templates index.html robots.txt
+ipfs add -wr --chunker=rabin css images js json templates index.html robots.txt
