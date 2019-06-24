@@ -1,14 +1,25 @@
 .card-img-top.lazyload,
 .card-img-top.lazyloading {
+	height: 0px;
 	opacity: 0;
-	transition: opacity 1000ms;
 }
 
 .card-img-top.lazyloaded {
 	opacity: 1;
-	transition: opacity 1000ms;
+	transition: opacity 1s;
 }
 
+/* Load */
+.card-img-top.lazyload~.placeholder .spinner-grow.text-primary.placeholder {
+	display: none;
+}
+
+/* Loading */
+.card-img-top.lazyloading~.placeholder .spinner-grow.text-secondary.placeholder {
+	display: none;
+}
+
+/* Loaded */
 .card-img-top.lazyloaded~.placeholder,
 .card-img-top.lazyloaded~.placeholder .placeholder {
 	display: none;
