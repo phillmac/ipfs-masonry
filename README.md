@@ -73,6 +73,7 @@ npm i -g hogan.js
 ```bash
 hulk mustache/* --outputdir templates
 ipfs add -wr --chunker=rabin css images js json templates index.html robots.txt
+ipfs cid base32
 ```
 
 The end result should look like this.
