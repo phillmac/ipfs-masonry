@@ -52,8 +52,8 @@ A folder contains a path and the name of the contained images.
 When adding files to IPFS, don't forget to convert the hash from CIDv0 to CIDv1.
 
 ```bash
-ipfs cid base32 QmRj8ZPNJutRpDV2gekN3vtgXJxSLqLeNmMZL2oD6Khf4G
-bafybeibskvkaunc5lwe6zhuvbcdqwcfrl3vrmq4xsbpxbpbrxpq6gbu6su
+ipfs cid base32 QmP4c9GWcbc1mD8yDcKaNEJNLmGqTND9cJsyEdJizBi3dw
+bafybeiakx57a25xqcuqrx2rbm2ugqxeud2i46ejjg3vqodvasqiwwe6pby
 ```
 
 This is necessary to obtain subdomain-separated URLs. The only known gateway to support them for now is [cf-ipfs.com](https://blog.cloudflare.com/continuing-to-improve-our-ipfs-gateway/).
