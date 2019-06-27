@@ -80,4 +80,4 @@ The end result should look like this.
 
 ![Gallery](./assets/gallery.png)
 
-There's a preview available [here](https://bafybeidycoyxvsoswvs3dcbcr2twbb5j6kk4bhi3xsvxna4osujojam4oq.cf-ipfs.com).
+There's a preview available [here](https://bafybeift4aa4y3cr5e46ocwx5q2rqnua5m3ten5a633zh3fbk7qjgcdadm.cf-ipfs.com/).
