@@ -5,6 +5,6 @@
 	"html.format.maxPreserveNewLines": 1,
 	"html.format.wrapLineLength": 0,
 	"jshint.options": {
-		"esversion": 8
-	}
+		"esversion": 9,
+	},
 }
