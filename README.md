@@ -71,13 +71,11 @@ npm i -g hogan.js
 ### Build
 
 ```bash
-hulk mustache/* --outputdir templates
-ipfs add -wr --chunker=rabin css images js json templates index.html robots.txt
-ipfs cid base32
+./scripts/ipfs.sh
 ```
 
 The end result should look like this.
 
 ![Gallery](./assets/gallery.png)
 
-There's a preview available [here](https://bafybeift4aa4y3cr5e46ocwx5q2rqnua5m3ten5a633zh3fbk7qjgcdadm.cf-ipfs.com/).
+There's a preview available [here](https://bafybeih3numjaydnhvwr62pkd75u2wiaj6vmz5ymbhouztij7j42rmuady.cf-ipfs.com/).
