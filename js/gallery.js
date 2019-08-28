@@ -46,8 +46,6 @@ $(document).ready(function ($) {
 			itemSelector: '.grid-item',
 			columnWidth: '.grid-sizer',
 			percentPosition: true,
-
-			gutter: 16,
 		});
 
 		// Layout Masonry after each image loads
