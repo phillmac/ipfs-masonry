@@ -21,26 +21,31 @@
 			</div>
 		{{/title}}
 		<!-- Gallery -->
-		<div class="card-columns my-3">
+		<div class="row grid my-3">
+
+			<div class="grid-sizer col-md-6 col-lg-4"></div>
+
 			{{#folders}}
 				{{#images}}
-					<a href="https://{{cidv1}}.cf-ipfs.com/{{{path}}}/{{.}}">
-						<div class="card">
+					<div class="my-3 col-md-6 col-lg-4 grid-item">
+						<a href="https://{{cidv1}}.cf-ipfs.com/{{{path}}}/{{.}}">
+							<div class="card">
 
-							<!-- Header -->
-							<div class="card-header">{{.}}</div>
+								<!-- Header -->
+								<div class="card-header">{{.}}</div>
 
-							<!-- Image -->
-							<img data-src="https://{{cidv1}}.cf-ipfs.com/{{{path}}}/{{.}}" class="card-img-top lazyload" alt="{{.}}" src="images/360x360-00000000.png" />
+								<!-- Image -->
+								<img data-src="https://{{cidv1}}.cf-ipfs.com/{{{path}}}/{{.}}" class="card-img-top lazyload" alt="{{.}}" src="images/360x360-00000000.png" />
 
-							<!-- Placeholder -->
-							<img src="images/360x360-00000000.png" class="card-img placeholder" />
-							<div class="card-img-overlay d-flex align-items-center justify-content-center placeholder">
-								<div class="spinner-grow text-secondary placeholder"></div> <!-- Load -->
-								<div class="spinner-grow text-primary placeholder"></div> <!-- Loading -->
+								<!-- Placeholder -->
+								<img src="images/360x360-00000000.png" class="card-img placeholder" />
+								<div class="card-img-overlay d-flex align-items-center justify-content-center placeholder">
+									<div class="spinner-grow text-secondary placeholder"></div> <!-- Load -->
+									<div class="spinner-grow text-primary placeholder"></div> <!-- Loading -->
+								</div>
 							</div>
-						</div>
-					</a>
+						</a>
+					</div>
 				{{/images}}
 			{{/folders}}
 		</div>
