@@ -36,3 +36,23 @@ gallery.md = window.markdownit({
 
 // Start
 gallery.start();
+
+// Masonry
+$(document).ready(function ($) {
+	setTimeout(function () {
+
+		// Init Masonry
+		const $grid = $('.grid').masonry({
+			itemSelector: '.grid-item',
+			columnWidth: '.grid-sizer',
+			percentPosition: true,
+
+			gutter: 16,
+		});
+
+		// Layout Masonry after each image loads
+		document.addEventListener('lazybeforeunveil', (e) => $grid.masonry('layout'));
+		document.addEventListener('lazyloaded', (e) => $grid.masonry('layout'));
+		document.addEventListener('lazybeforesizes', (e) => $grid.masonry('layout'));
+	}, 1000);
+});
