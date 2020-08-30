@@ -2,7 +2,7 @@ const searchParams = new URLSearchParams(window.location.search);
 let pageNo = searchParams.get('page');
 let imageCount = searchParams.get('count');
 const galleryName = searchParams.get('galleryname');
-
+const initScreenLog = ['true', 'TRUE'].includes(searchParams.get('debug'))
 let pageMax = 1;
 
 try {
@@ -87,7 +87,7 @@ async function* callApiEndpoints(endPoints) {
 	})
 }
 
-async function* listFolder(folderPath, itemType, { apiHosts, apiPath, quick = true }) {
+async function* listFolder(folderPath, itemType, { apiHosts, apiPath, quick = true, folderCacheTTL }) {
 	console.log(`Listing folder ${folderPath}`)
 	const storageKey = { 1: 'folders', 2: 'files' }[itemType]
 	const localResults = getWithExpiry(storageKey, folderPath) || []
@@ -107,7 +107,7 @@ async function* listFolder(folderPath, itemType, { apiHosts, apiPath, quick = tr
 					.filter(li => !(localNames.includes(li.Name)))
 					.filter(li => li.Type === itemType)
 				if (missing.length > 0) {
-					setWithExpiry(storageKey, folderPath, [...localResults, ...missing], 3600 * 24 * 1 * 1000)
+					setWithExpiry(storageKey, folderPath, [...localResults, ...missing], folderCacheTTL)
 					yield* missing.map(li => li.Name)
 				}
 			}
@@ -116,7 +116,7 @@ async function* listFolder(folderPath, itemType, { apiHosts, apiPath, quick = tr
 }
 
 
-const resolvePath = async (itemPath, { apiHosts, apiPath }) => {
+const resolvePath = async (itemPath, { apiHosts, apiPath, resolveCacheTTL }) => {
 	const localResult = getWithExpiry('resolvedPaths', itemPath)
 	if (localResult) {
 		return localResult
@@ -127,7 +127,7 @@ const resolvePath = async (itemPath, { apiHosts, apiPath }) => {
 		if (apiResponse.Path) {
 			const cidv0 = Multiaddr(apiResponse.Path).stringTuples()[0][1]
 			const cidv1 = CidTool.base32(cidv0)
-			setWithExpiry('resolvedPaths', itemPath, cidv1, 3600 * 24 * 30 * 1000)
+			setWithExpiry('resolvedPaths', itemPath, cidv1, resolveCacheTTL)
 			return cidv1
 		}
 	}
@@ -153,29 +153,29 @@ const renderJson = (json) => {
 		}
 	});
 }
-const listGalleries = (galleriesPath, { apiHosts, apiPath }) => listFolder(galleriesPath, 1, { apiHosts, apiPath, quick: false })
+const listGalleries = (galleriesPath, options) => listFolder(galleriesPath, 1, { ...options, quick: false })
 
-const listGallery = async (galleryPath, { apiHosts, apiPath }) => {
+const listGallery = async (galleryPath, options) => {
 	const results = [];
-	for await (const item of listFolder(galleryPath, 2, { apiHosts, apiPath })) {
+	for await (const item of listFolder(galleryPath, 2, options)) {
 		results.push(item);
 	}
 	return results
 }
 
-const buildJson = async (galleryPath, { apiHosts, apiPath }) => {
+const buildJson = async (galleryPath, options) => {
 	return {
 		author: 'DeviantArt IPFS Archive',
 		description: '',
 		galleries: [
 			{
-				cidv1: await resolvePath(galleryPath, { apiHosts, apiPath }),
+				cidv1: await resolvePath(galleryPath, options),
 				title: galleryName,
 				text: '',
 				folders: [
 					{
 						path: '.',
-						images: await listGallery(galleryPath, { apiHosts, apiPath })
+						images: await listGallery(galleryPath, options)
 					}
 				]
 			}
@@ -194,16 +194,16 @@ const addGallery = (gallery, gpQuery) => {
 	}));
 }
 
-const hasThumbs = async (folderPath, { apiHosts, apiPath }) => {
-	for await (const item of listFolder(folderPath, 1, { apiHosts, apiPath })) {
+const hasThumbs = async (folderPath, options) => {
+	for await (const item of listFolder(folderPath, 1, options)) {
 		if (item === 'thumbs') {
 			return true
 		}
 	}
 }
 
-const hasGallery = async (folderPath, galleryFolder, { apiHosts, apiPath }) => {
-	for await (const item of listFolder(folderPath, 1, { apiHosts, apiPath })) {
+const hasGallery = async (folderPath, galleryFolder, options) => {
+	for await (const item of listFolder(folderPath, 1, options)) {
 		if (item === galleryFolder) {
 			return true
 		}
@@ -228,16 +228,20 @@ const gallery = {
 		doFetch('./json/config.json')
 			.then(response => response.json())
 			.then(async config => {
+				console.debug({ config })
 				const galleriesPath = searchParams.get('galleriespath') || config.galleriesPath;
 				const galleryFolder = config.galleryFolder;
 				const noApiHostNames = config.noApiHostNames;
+				const folderCacheTTL = config.folderCacheTTL * 1000
+				const resolveCacheTTL = config.resolveCacheTTL * 1000
 				const apiHosts = noApiHostNames.find(hn => window.location.hostname.includes(hn)) ? config.apiHosts : [...new Set([window.location.origin, ...config.apiHosts])];
 				const apiPath = config.apiPath;
 				const galleryPath = `${galleriesPath}/${galleryName}/${galleryFolder}`;
 				const gpQuery = galleriesPath !== config.galleriesPath ? `&galleriespath=${galleriesPath}` : ''
+				const options = { apiHosts, apiPath, folderCacheTTL, resolveCacheTTL }
 
 				if (galleryName) {
-					buildJson(galleryPath, { apiHosts, apiPath })
+					buildJson(galleryPath, options)
 						.then(json => renderJson(json))
 						.then(() => {
 							$('#loader').hide()
@@ -254,10 +258,10 @@ const gallery = {
 						});
 				} else {
 					$('#gallery').append('<ul id="galleries-list"></ul>');
-					for await (const gallery of listGalleries(galleriesPath, { apiHosts, apiPath })) {
+					for await (const gallery of listGalleries(galleriesPath, options)) {
 						if (
-							await hasGallery(`${galleriesPath}/${gallery}`, galleryFolder, { apiHosts, apiPath }) &&
-							await hasThumbs(`${galleriesPath}/${gallery}/${galleryFolder}`, { apiHosts, apiPath })
+							await hasGallery(`${galleriesPath}/${gallery}`, galleryFolder, options) &&
+							await hasThumbs(`${galleriesPath}/${gallery}/${galleryFolder}`, options)
 						) {
 							addGallery(gallery, gpQuery)
 						}
@@ -277,10 +281,15 @@ gallery.md = window.markdownit({
 });
 
 // Start
-gallery.start();
+
 
 // Masonry
 $(document).ready(function ($) {
+	gallery.start();
+
+	if (initScreenLog) {
+		screenLog.init()
+	}
 	setTimeout(function () {
 
 		// Init Masonry
