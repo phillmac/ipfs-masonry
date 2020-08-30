@@ -30,7 +30,7 @@ ipfs --api=/dns4/ipfs/tcp/5001 add --wrap-with-directory --chunker=rabin --cid-v
 ipfs --api=/dns4/ipfs/tcp/5001 add --wrap-with-directory --chunker=rabin --cid-version=1 https://unpkg.com/screenlog/dist/screenlog.min.js
 
 #Lz-string
-ipfs --api=/dns4/ipfs/tcp/5001 add --wrap-with-directory --chunker=rabin --cid-version=1 https://unpkg.com/libs/lz-string.min.js
+ipfs --api=/dns4/ipfs/tcp/5001 add --wrap-with-directory --chunker=rabin --cid-version=1 https://unpkg.com/lz-string/libs/lz-string.min.js
 
 # IPFS Masonry
 ipfs --api=/dns4/ipfs/tcp/5001 add --recursive --wrap-with-directory --chunker=rabin --cid-version=1 css images js json templates index.html robots.txt
