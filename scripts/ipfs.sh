@@ -20,5 +20,14 @@ ipfs --api=/dns4/ipfs/tcp/5001 add --wrap-with-directory --chunker=rabin --cid-v
 # Lazysizes
 ipfs --api=/dns4/ipfs/tcp/5001 add --wrap-with-directory --chunker=rabin --cid-version=1 https://afarkas.github.io/lazysizes/lazysizes.min.js https://afarkas.github.io/lazysizes/plugins/unload/ls.unload.min.js
 
+# Multiaddr
+ipfs --api=/dns4/ipfs/tcp/5001 add --wrap-with-directory --chunker=rabin --cid-version=1  https://unpkg.com/multiaddr/dist/index.min.js
+
+# CID Tool
+ipfs --api=/dns4/ipfs/tcp/5001 add --wrap-with-directory --chunker=rabin --cid-version=1  https://unpkg.com/cid-tool/dist/index.min.js
+
+# Screenlog
+ipfs --api=/dns4/ipfs/tcp/5001 add --wrap-with-directory --chunker=rabin --cid-version=1 https://unpkg.com/screenlog/dist/screenlog.min.js
+
 # IPFS Masonry
 ipfs --api=/dns4/ipfs/tcp/5001 add --recursive --wrap-with-directory --chunker=rabin --cid-version=1 css images js json templates index.html robots.txt
