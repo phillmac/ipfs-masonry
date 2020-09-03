@@ -297,6 +297,7 @@ const gallery = {
 								delete localStorage.bookmark
 								console.log({ bookmark })
 								const $el = $(`[data-bookmark-name="${bookmark}"]`)
+								console.log({ $el })
 								$('html, body').scrollTop($el.offset().top);
 							}
 						});
