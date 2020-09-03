@@ -288,18 +288,15 @@ const gallery = {
 							$('.js-add-bookmark').on('click', function () {
 								const $el = $(this)
 								const bookmark = $el.data('bookmarkName')
-								console.log({ bookmark })
 								localStorage.bookmark = $el.data('bookmarkName')
 							})
 
 							if (localStorage.bookmark) {
 								const bookmark = localStorage.bookmark
 								delete localStorage.bookmark
-								console.log({ bookmark })
 								const $el = $(`[data-bookmark-name="${bookmark}"]`)
 								if ($el) {
 									setTimeout(function () {
-										console.log('Scrolling to bookmark')
 										$('html, body').scrollTop($el.offset().top);
 									}, 1000);
 								}
