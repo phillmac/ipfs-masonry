@@ -5,6 +5,9 @@ const galleryName = searchParams.get('galleryname');
 const initScreenLog = ['true', 'TRUE'].includes(searchParams.get('debug'))
 let pageMax = 1;
 
+const galleryFolderName = window.location.pathname.split('/').filter(p => p).slice(-1).pop();
+
+
 try {
 	pageNo = parseInt(pageNo);
 	if (imageCount) {
@@ -14,9 +17,29 @@ try {
 	}
 } catch { }
 
+if ((!localStorage.cacheVersion) && (localStorage.folders || localStorage.files)) {
+	localStorage.cacheVersion = '0.1.0'
+}
+
+if (localStorage.cacheVersion === '0.1.0') {
+	if (localStorage.folders) {
+		console.info(`Folders size before ${localStorage.folders.length}`)
+		localStorage.folders = LZString.compress(localStorage.folders)
+		console.info(`Folders size after ${localStorage.folders.length}`)
+	}
+
+	if (localStorage.files) {
+		console.info(`Files size before ${localStorage.files.length}`)
+		localStorage.files = LZString.compress(localStorage.files)
+		console.info(`Files size after ${localStorage.files.length}`)
+	}
+
+	localStorage.cacheVersion = '0.2.0'
+}
+
 function jsonParseOrDefault(str, defaultVal) {
 	try {
-		result = JSON.parse(str);
+		result = JSON.parse(LZString.decompress(str));
 		if (!result) {
 			return defaultVal;
 		}
@@ -63,7 +86,7 @@ function setWithExpiry(key, path, value, ttl) {
 	}
 	const keyItem = jsonParseOrDefault(localStorage.getItem(key), {})
 	keyItem[path] = item
-	localStorage.setItem(key, JSON.stringify(keyItem))
+	localStorage.setItem(key, LZString.compress(JSON.stringify(keyItem)))
 }
 
 const doFetch = (url, options = {}) => fetch(url, { referrerPolicy: 'no-referrer', ...options })
@@ -225,12 +248,16 @@ const gallery = {
 	 * Fetch JSON resources using HoganJS, then display it.
 	 */
 	render: function () {
-		doFetch('./json/config.json')
+		if (!localStorage.config) {
+			localStorage.config = JSON.stringify({})
+		}
+		doFetch('../settings/config/default.json')
 			.then(response => response.json())
+			.then(json => $.extend(json, JSON.parse(localStorage.config)))
 			.then(async config => {
 				console.debug({ config })
 				const galleriesPath = searchParams.get('galleriespath') || config.galleriesPath;
-				const galleryFolder = config.galleryFolder;
+				const galleryFolder = config.pathNames[galleryFolderName];
 				const noApiHostNames = config.noApiHostNames;
 				const folderCacheTTL = config.folderCacheTTL * 1000
 				const resolveCacheTTL = config.resolveCacheTTL * 1000
@@ -239,6 +266,8 @@ const gallery = {
 				const galleryPath = `${galleriesPath}/${galleryName}/${galleryFolder}`;
 				const gpQuery = galleriesPath !== config.galleriesPath ? `&galleriespath=${galleriesPath}` : ''
 				const options = { apiHosts, apiPath, folderCacheTTL, resolveCacheTTL }
+
+				console.log({ galleryFolder })
 
 				if (galleryName) {
 					buildJson(galleryPath, options)
@@ -254,6 +283,21 @@ const gallery = {
 									$(".page-links").append(`<a href="?galleryname=${galleryName}&page=${pageNo + 1}${gpQuery}">Next ></a>&nbsp;&nbsp;&nbsp;&nbsp;`)
 									$(".page-links").append(`<a href="?galleryname=${galleryName}&page=${pageMax}${gpQuery}">Last >>></a>`)
 								}
+							}
+
+							$('.js-add-bookmark').on('click', function () {
+								const $el = $(this)
+								const bookmark = $el.data('bookmarkName')
+								console.log({ bookmark })
+								localStorage.bookmark = $el.data('bookmarkName')
+							})
+
+							if (localStorage.bookmark) {
+								const bookmark = localStorage.bookmark
+								delete localStorage.bookmark
+								console.log({ bookmark })
+								const $el = $(`[data-bookmark-name=${bookmark}]`)
+								$('html, body').scrollTop($el.offset().top);
 							}
 						});
 				} else {
@@ -285,6 +329,8 @@ gallery.md = window.markdownit({
 
 // Masonry
 $(document).ready(function ($) {
+	$('.nav-item').filter((idx, elem) => elem.textContent.trim().toLowerCase() === galleryFolderName).addClass('active')
+
 	gallery.start();
 
 	if (initScreenLog) {
