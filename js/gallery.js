@@ -9,6 +9,7 @@ export class Gallery {
     const galleryPath = `${config.path.galleries}/${params.galleryName}/${galleryFolder}`
     const folderCacheTTL = config.cache.TTL.folders
     const resolveCacheTTL = config.cache.TTL.resolve
+    const fileCacheTTL = config.cache.TTL.files
 
     const apiDisableCurrentHost = Boolean(
       Object.keys(config.api.disabledHostNames)
@@ -42,7 +43,10 @@ export class Gallery {
     this.listFolder = async function* (folderPath, itemType, quick = true) {
       console.log(`Listing folder ${folderPath}`)
       const storageKey = { 1: 'folders', 2: 'files' }[itemType]
+      const cacheTTL = { 1: folderCacheTTL, 2: fileCacheTTL }
       const localResults = cache.getWithExpiry(storageKey, folderPath) || []
+
+      console.log({ itemType, cacheTTL })
 
       yield* localResults.filter(l => l.Type === itemType).map(lr => lr.Name)
 
@@ -59,7 +63,7 @@ export class Gallery {
               .filter(li => !(localNames.includes(li.Name)))
               .filter(li => li.Type === itemType)
             if (missing.length > 0) {
-              cache.setWithExpiry(storageKey, folderPath, [...localResults, ...missing], folderCacheTTL)
+              cache.setWithExpiry(storageKey, folderPath, [...localResults, ...missing], cacheTTL)
               yield* missing.map(li => li.Name)
             }
           }
