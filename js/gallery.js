@@ -46,8 +46,6 @@ export class Gallery {
       const cacheTTL = { 1: folderCacheTTL, 2: fileCacheTTL }[itemType]
       const localResults = cache.getWithExpiry(storageKey, folderPath) || []
 
-      console.log({ itemType, cacheTTL })
-
       yield* localResults.filter(l => l.Type === itemType).map(lr => lr.Name)
 
       if (!(quick && localResults.length > 0)) {
