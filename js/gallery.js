@@ -117,15 +117,15 @@ export class Gallery {
     this.buildJson = async (galleryPath) => {
       const galleryContents = await this.listGallery(galleryPath)
       const gatewayHost = (
-        galleryContents.some(i => config.gateways.useAlternateExtentions.some(e => i.includes(e))) ?
-          config.gateways.hosts.primary : config.gateways.hosts.alternate
+        galleryContents.some(i => config.gateway.useAlternateExtentions.some(e => i.includes(e))) ?
+          config.gateway.hosts.primary : config.gateway.hosts.alternate
       )
       return {
         author: 'DeviantArt IPFS Archive',
         description: '',
         galleries: [
           {
-            gateway: config.gateways.useOrigin ? window.location.origin : `https://${gatewayHost}`,
+            gateway: config.gateway.useOrigin ? window.location.origin : `https://${gatewayHost}`,
             cidv1: await this.resolvePath(galleryPath),
             title: params.galleryName,
             text: '',
