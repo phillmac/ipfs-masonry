@@ -51,7 +51,7 @@ export class Cache {
       // as well as the time when it's supposed to expire
       const item = {
         value: value,
-        expiry: now.getTime() + ttl * 1000,
+        expiry: now.getTime() + ttl * 1000 + Math.floor(Math.random() * ttl * 1000),
       }
       const keyItem = this.jsonParseOrDefault(localStorage.getItem(key), {})
       keyItem[path] = item
