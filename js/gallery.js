@@ -43,7 +43,7 @@ export class Gallery {
     this.listFolder = async function* (folderPath, itemType, quick = true) {
       console.log(`Listing folder ${folderPath}`)
       const storageKey = { 1: 'folders', 2: 'files' }[itemType]
-      const cacheTTL = { 1: folderCacheTTL, 2: fileCacheTTL }
+      const cacheTTL = { 1: folderCacheTTL, 2: fileCacheTTL }[itemType]
       const localResults = cache.getWithExpiry(storageKey, folderPath) || []
 
       console.log({ itemType, cacheTTL })
