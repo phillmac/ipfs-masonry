@@ -33,12 +33,16 @@ $(document).ready(async function ($) {
 
   const imports = await Promise.all([import('./gallery.js'), import('./cache/cache.js'), import('../../settings/config/config.js')])
   const [{ Gallery }, { Cache }, { Config }] = imports
-  console.log({ Gallery, Cache, Config })
-  const config = new Config({ params })
-  await config.migrate()
-  const cache = new Cache({ config })
+  const conf = new Config({ params })
+  await conf.migrate()
+  const config = await conf.get()
 
-  const gallery = new Gallery({ params, config: await config.get(), cache })
+  if ((!params?.initScreenLog) && config?.debug?.screenlog?.enabled) {
+    screenLog.init()
+  }
+  const cache = new Cache({ params, config })
+
+  const gallery = new Gallery({ params, config, cache })
   gallery.start()
 
   setTimeout(function () {
