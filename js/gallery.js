@@ -60,7 +60,7 @@ export class Gallery {
     }
 
     this.findGallery = async () => {
-      if (config.path.galleries.length === 1) return config.path.galleries.pop()
+      if (config.path.galleries.length === 1) return [...config.path.galleries].pop()
       let result
 
       const search = async (g) => {
@@ -223,7 +223,7 @@ export class Gallery {
      */
     this.render = async () => {
       if (params.galleryName) {
-        const galleryPath = await this.findGallery()
+        const galleryPath = `${await this.findGallery()}/${params.galleryName}/${galleryFolder}`
         console.debug({ galleryPath })
 
         this.buildJson(galleryPath)

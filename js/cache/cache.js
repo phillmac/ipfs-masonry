@@ -8,7 +8,7 @@ export class Cache {
 
     this.jsonParseOrDefault = (str, defaultVal) => {
       try {
-        result = JSON.parse(LZString.decompress(str));
+        const result = JSON.parse(LZString.decompress(str));
         if (!result) {
           return defaultVal;
         }
