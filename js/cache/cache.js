@@ -38,7 +38,7 @@ export class Cache {
       if (now > expiry) {
         // If the item is expired, delete the item from storage
         // and return null
-        console.debug({path, now, expiry})
+        console.debug({ path, now, expiry })
         delete keyItem[path]
         localStorage.setItem(key, JSON.stringify(keyItem))
         return null
