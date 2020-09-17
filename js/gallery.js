@@ -186,7 +186,7 @@ export class Gallery {
       }
     }
 
-    this.addGallery = (gallery, galPath='') => {
+    this.addGallery = (gallery, galPath = '') => {
       $('#galleries-list').append(`<div class="page-links"><a href="?galleriespath=${galPath}&galleryname=${gallery}&page=1${gpQuery}">${gallery}</a><br></div>`)
       $('#galleries-list').append($('#galleries-list').children().detach().sort((a, b) => {
         const atxt = a.textContent.toLowerCase()
@@ -269,7 +269,7 @@ export class Gallery {
               await this.hasGallery(`${galPath}/${gallery}`, galleryFolder) &&
               await this.hasThumbs(`${galPath}/${gallery}/${galleryFolder}`)
             ) {
-              this.addGallery(gallery,galPath)
+              this.addGallery(gallery, galPath)
               existing.add(gallery)
             }
           }
@@ -278,13 +278,11 @@ export class Gallery {
       }
     }
 
-    this.
-
-      this.md = window.markdownit({
-        xhtmlOut: true,
-        breaks: true,
-        linkify: true,
-        typographer: true
-      })
+    this.md = window.markdownit({
+      xhtmlOut: true,
+      breaks: true,
+      linkify: true,
+      typographer: true
+    })
   }
 }
