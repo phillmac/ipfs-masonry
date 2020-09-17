@@ -2,11 +2,30 @@ export class Gallery {
   constructor({ params, config, cache }) {
     console.debug({ params, config })
 
+    class QueryablePromise extends Promise {
+      constructor(executor) {
+        super((resolve, reject) => executor(
+          data => {
+            resolve(data)
+            this._status = 'Resolved'
+          },
+          err => {
+            reject(err)
+            this._status = 'Rejected'
+          }
+        ))
+        this._status = 'Pending'
+      }
+
+      get status() {
+        return this._status
+      }
+    }
+
     const gpQuery = params?.path?.galleries ? `&galleriespath=${params.path.galleries}` : ''
     const usePagination = (!config.pagination.disabled) && params.pageNo
     const itemsPerPage = config.pagination.itemsPerPage
     const galleryFolder = config.path.names[params.galleryFolderName]
-    const galleryPath = `${config.path.galleries}/${params.galleryName}/${galleryFolder}`
     const folderCacheTTL = config.cache.TTL.folders
     const resolveCacheTTL = config.cache.TTL.resolve
     const fileCacheTTL = config.cache.TTL.files
@@ -38,6 +57,29 @@ export class Gallery {
           return {}
         }
       })
+    }
+
+    this.findGallery = async () => {
+      if (config.path.galleries.length === 1) return config.path.galleries.pop()
+      let result
+
+      const search = async (g) => {
+        try {
+          for await (const i of this.listGalleries(g)) {
+            if (i === params.galleryName) { return g }
+          }
+        } catch (err) {
+          console.error(err)
+        }
+      }
+
+      const listings = config.path.galleries.map(g => new QueryablePromise(resolve, reject => search(g).then(r => resolve(r))))
+
+      while (!result) {
+        const temp = await Promise.race(listings.filter(p => p.status === 'Pending'))
+        if (temp) result = temp
+      }
+      return result
     }
 
     this.listFolder = async function* (folderPath, itemType, quick = true) {
@@ -118,16 +160,18 @@ export class Gallery {
 
     this.buildJson = async (galleryPath) => {
       const galleryContents = await this.listGallery(galleryPath)
-      const gatewayHost = (
-        galleryContents.some(i => config.gateway.useAlternateExtentions.some(e => i.includes(e))) ?
-          config.gateway.hosts.primary : config.gateway.hosts.alternate
-      )
+      const hasVideo = galleryContents.some(i => config.gateway.useAlternateExtentions.some(e => i.includes(e)))
+      const gatewayHost = hasVideo
+        ? config.gateway.hosts.alternate : config.gateway.hosts.primary
+
+      const gateway = config.gateway.useOrigin ? window.location.origin : `https://${gatewayHost}`
+      console.debug({ gateway })
       return {
         author: 'DeviantArt IPFS Archive',
         description: '',
         galleries: [
           {
-            gateway: config.gateway.useOrigin ? window.location.origin : `https://${gatewayHost}`,
+            gateway,
             cidv1: await this.resolvePath(galleryPath),
             title: params.galleryName,
             text: '',
@@ -142,8 +186,8 @@ export class Gallery {
       }
     }
 
-    this.addGallery = (gallery) => {
-      $('#galleries-list').append(`<div class="page-links"><a href="?galleryname=${gallery}&page=1${gpQuery}">${gallery}</a><br></div>`)
+    this.addGallery = (gallery, galPath='') => {
+      $('#galleries-list').append(`<div class="page-links"><a href="?galleriespath=${galPath}&galleryname=${gallery}&page=1${gpQuery}">${gallery}</a><br></div>`)
       $('#galleries-list').append($('#galleries-list').children().detach().sort((a, b) => {
         const atxt = a.textContent.toLowerCase()
         const btxt = b.textContent.toLowerCase()
@@ -179,6 +223,9 @@ export class Gallery {
      */
     this.render = async () => {
       if (params.galleryName) {
+        const galleryPath = await this.findGallery()
+        console.debug({ galleryPath })
+
         this.buildJson(galleryPath)
           .then(json => this.renderJson(json))
           .then(() => {
@@ -213,23 +260,31 @@ export class Gallery {
           })
       } else {
         $('#gallery').append('<ul id="galleries-list"></ul>')
-        for await (const gallery of this.listGalleries(config.path.galleries)) {
-          if (
-            await this.hasGallery(`${config.path.galleries}/${gallery}`, galleryFolder) &&
-            await this.hasThumbs(`${config.path.galleries}/${gallery}/${galleryFolder}`)
-          ) {
-            this.addGallery(gallery)
+        const existing = new Set()
+
+        for (const galPath of config.path.galleries) {
+          for await (const gallery of this.listGalleries(galPath)) {
+            if (
+              (!(existing.has(gallery))) &&
+              await this.hasGallery(`${galPath}/${gallery}`, galleryFolder) &&
+              await this.hasThumbs(`${galPath}/${gallery}/${galleryFolder}`)
+            ) {
+              this.addGallery(gallery,galPath)
+              existing.add(gallery)
+            }
           }
         }
         $('#loader').hide()
       }
     }
 
-    this.md = window.markdownit({
-      xhtmlOut: true,
-      breaks: true,
-      linkify: true,
-      typographer: true
-    })
+    this.
+
+      this.md = window.markdownit({
+        xhtmlOut: true,
+        breaks: true,
+        linkify: true,
+        typographer: true
+      })
   }
 }

@@ -32,11 +32,13 @@ export class Cache {
       if (!item) {
         return null
       }
-      const now = new Date()
+      const now = new Date().getTime()
+      const expiry = item.expiry
       // compare the expiry time of the item with the current time
-      if (now.getTime() > item.expiry) {
+      if (now > expiry) {
         // If the item is expired, delete the item from storage
         // and return null
+        console.debug({path, now, expiry})
         delete keyItem[path]
         localStorage.setItem(key, JSON.stringify(keyItem))
         return null
@@ -49,10 +51,12 @@ export class Cache {
 
       // `item` is an object which contains the original value
       // as well as the time when it's supposed to expire
+      const expiry = now.getTime() + ttl * 1000 + Math.floor(Math.random() * ttl * 1000)
       const item = {
-        value: value,
-        expiry: now.getTime() + ttl * 1000 + Math.floor(Math.random() * ttl * 1000),
+        value,
+        expiry,
       }
+      console.debug({ path, expiry })
       const keyItem = this.jsonParseOrDefault(localStorage.getItem(key), {})
       keyItem[path] = item
       localStorage.setItem(key, LZString.compress(JSON.stringify(keyItem)))
