@@ -1,9 +1,9 @@
 export class Gallery {
-  constructor({ params, config, cache }) {
+  constructor ({ params, config, cache }) {
     console.debug({ params, config })
 
     class QueryablePromise extends Promise {
-      constructor(executor) {
+      constructor (executor) {
         super((resolve, reject) => executor(
           data => {
             resolve(data)
@@ -17,7 +17,7 @@ export class Gallery {
         this._status = 'Pending'
       }
 
-      get status() {
+      get status () {
         return this._status
       }
     }
@@ -40,10 +40,10 @@ export class Gallery {
 
     const doFetch = (url, options = {}) => fetch(url, { referrerPolicy: 'no-referrer', ...options })
 
-    async function* callApiEndpoints(endPoints) {
+    async function * callApiEndpoints (endPoints) {
       const abort = new AbortController()
       const signal = abort.signal
-      yield* endPoints.map(async ep => {
+      yield * endPoints.map(async ep => {
         try {
           const response = await doFetch(ep, { signal })
           if (response.status === 200) {
@@ -60,6 +60,7 @@ export class Gallery {
     }
 
     this.findGallery = async () => {
+      if (typeof config.path.galleries === 'string') return config.path.galleries
       if (config.path.galleries.length === 1) return [...config.path.galleries].pop()
       let result
 
@@ -73,7 +74,7 @@ export class Gallery {
         }
       }
 
-      const listings = config.path.galleries.map(g => new QueryablePromise(resolve, reject => search(g).then(r => resolve(r))))
+      const listings = config.path.galleries.map(g => new QueryablePromise((resolve, reject) => search(g).then(r => resolve(r))))
 
       while (!result) {
         const temp = await Promise.race(listings.filter(p => p.status === 'Pending'))
@@ -82,13 +83,13 @@ export class Gallery {
       return result
     }
 
-    this.listFolder = async function* (folderPath, itemType, quick = true) {
+    this.listFolder = async function * (folderPath, itemType, quick = true) {
       console.log(`Listing folder ${folderPath}`)
       const storageKey = { 1: 'folders', 2: 'files' }[itemType]
       const cacheTTL = { 1: folderCacheTTL, 2: fileCacheTTL }[itemType]
       const localResults = cache.getWithExpiry(storageKey, folderPath) || []
 
-      yield* localResults.filter(l => l.Type === itemType).map(lr => lr.Name)
+      yield * localResults.filter(l => l.Type === itemType).map(lr => lr.Name)
 
       if (!(quick && localResults.length > 0)) {
         console.debug(`Slow ${folderPath} quick: ${quick} length: ${localResults.length}`)
@@ -104,7 +105,7 @@ export class Gallery {
               .filter(li => li.Type === itemType)
             if (missing.length > 0) {
               cache.setWithExpiry(storageKey, folderPath, [...localResults, ...missing], cacheTTL)
-              yield* missing.map(li => li.Name)
+              yield * missing.map(li => li.Name)
             }
           }
         }
