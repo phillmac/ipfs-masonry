@@ -262,8 +262,8 @@ export class Gallery {
       } else {
         $('#gallery').append('<ul id="galleries-list"></ul>')
         const existing = new Set()
-
-        for (const galPath of config.path.galleries) {
+        const galleriesPaths = typeof config.path.galleries === 'string' ?  [config.path.galleries] : config.path.galleries
+        for (const galPath of galleriesPaths) {
           for await (const gallery of this.listGalleries(galPath)) {
             if (
               (!(existing.has(gallery))) &&
