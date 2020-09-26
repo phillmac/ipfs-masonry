@@ -170,21 +170,21 @@ export class Gallery {
       }
 
       const renderGallery = async (json) => {
-        json.galleries.forEach((element, index) => {
+        for (const galleryItem of json.galleries) {
           if (usePagination) {
-            element.folders.forEach((folder) => {
+            galleryItem.folders.forEach((folder) => {
               const imgLen = folder.images.length
               folder.images = folder.images.slice(params.pageNo * itemsPerPage - itemsPerPage, params.pageNo * itemsPerPage)
               const maxPage = Math.ceil(imgLen * 1.0 / itemsPerPage)
               params.pageMax = maxPage > params.pageMax ? maxPage : params.pageMax
             })
           }
-          if (element.text) {
+          if (galleryItem.text) {
             try {
-              const response = await doFetch(`${gateway}/ipfs/${element.cidv1}/${element.text}`)
+              const response = await doFetch(`${gateway}/ipfs/${galleryItem.cidv1}/${galleryItem.text}`)
               if (response.status === 200) {
                 const text = await response.text()
-                json.galleries[index].text = this.md.render(text)
+                galleryItem.text = this.md.render(text)
                 document.querySelector('#gallery').innerHTML = templates.gallery.render(json)
               }
             } catch {
@@ -193,7 +193,7 @@ export class Gallery {
           } else {
             document.querySelector('#gallery').innerHTML = templates.gallery.render(json)
           }
-        })
+        }
       }
 
       return buildGallery().then(json => renderGallery(json))
