@@ -1,9 +1,9 @@
 export class Gallery {
-  constructor ({ params, config, cache }) {
+  constructor({ params, config, cache }) {
     console.debug({ params, config })
 
     class QueryablePromise extends Promise {
-      constructor (executor) {
+      constructor(executor) {
         super((resolve, reject) => executor(
           data => {
             resolve(data)
@@ -17,7 +17,7 @@ export class Gallery {
         this._status = 'Pending'
       }
 
-      get status () {
+      get status() {
         return this._status
       }
     }
@@ -40,10 +40,10 @@ export class Gallery {
 
     const doFetch = (url, options = {}) => fetch(url, { referrerPolicy: 'no-referrer', ...options })
 
-    async function * callApiEndpoints (endPoints) {
+    async function* callApiEndpoints(endPoints) {
       const abort = new AbortController()
       const signal = abort.signal
-      yield * endPoints.map(async ep => {
+      yield* endPoints.map(async ep => {
         try {
           const response = await doFetch(ep, { signal })
           if (response.status === 200) {
@@ -83,13 +83,13 @@ export class Gallery {
       return result
     }
 
-    this.listFolder = async function * (folderPath, itemType, quick = true) {
+    this.listFolder = async function* (folderPath, itemType, quick = true) {
       console.log(`Listing folder ${folderPath}`)
       const storageKey = { 1: 'folders', 2: 'files' }[itemType]
       const cacheTTL = { 1: folderCacheTTL, 2: fileCacheTTL }[itemType]
       const localResults = cache.getWithExpiry(storageKey, folderPath) || []
 
-      yield * localResults.filter(l => l.Type === itemType).map(lr => lr.Name)
+      yield* localResults.filter(l => l.Type === itemType).map(lr => lr.Name)
 
       if (!(quick && localResults.length > 0)) {
         console.debug(`Slow ${folderPath} quick: ${quick} length: ${localResults.length}`)
@@ -105,7 +105,7 @@ export class Gallery {
               .filter(li => li.Type === itemType)
             if (missing.length > 0) {
               cache.setWithExpiry(storageKey, folderPath, [...localResults, ...missing], cacheTTL)
-              yield * missing.map(li => li.Name)
+              yield* missing.map(li => li.Name)
             }
           }
         }
@@ -129,26 +129,6 @@ export class Gallery {
       }
     }
 
-    this.renderJson = (json) => {
-      json.galleries.forEach((element, index) => {
-        if (usePagination) {
-          element.folders.forEach((folder) => {
-            const imgLen = folder.images.length
-            folder.images = folder.images.slice(params.pageNo * itemsPerPage - itemsPerPage, params.pageNo * itemsPerPage)
-            const maxPage = Math.ceil(imgLen * 1.0 / itemsPerPage)
-            params.pageMax = maxPage > params.pageMax ? maxPage : params.pageMax
-          })
-        }
-        if (element.text !== '') {
-          doFetch('https://' + element.cidv1 + '.ipfs.cf-ipfs.com/' + element.text).then(response => response.text()).then(text => {
-            json.galleries[index].text = this.md.render(text)
-            document.querySelector('#gallery').innerHTML = templates.gallery.render(json)
-          })
-        } else {
-          document.querySelector('#gallery').innerHTML = templates.gallery.render(json)
-        }
-      })
-    }
     this.listGalleries = (galleriesPath) => this.listFolder(galleriesPath, 1, false)
 
     this.listGallery = async (galleryPath) => {
@@ -159,7 +139,7 @@ export class Gallery {
       return results
     }
 
-    this.buildJson = async (galleryPath) => {
+    this.doRenderGallery = async (galleryPath) => {
       const galleryContents = await this.listGallery(galleryPath)
       const hasVideo = galleryContents.some(i => config.gateway.useAlternateExtentions.some(e => i.includes(e)))
       const gatewayHost = hasVideo
@@ -167,25 +147,58 @@ export class Gallery {
 
       const gateway = config.gateway.useOrigin ? window.location.origin : `https://${gatewayHost}`
       console.debug({ gateway })
-      return {
-        author: 'DeviantArt IPFS Archive',
-        description: '',
-        galleries: [
-          {
-            gateway,
-            cidv1: await this.resolvePath(galleryPath),
-            title: params.galleryName,
-            text: '',
-            folders: [
-              {
-                path: '.',
-                images: galleryContents
-              }
-            ]
-          }
-        ]
+
+      const buildGallery = async () => {
+        return {
+          author: 'DeviantArt IPFS Archive',
+          description: '',
+          galleries: [
+            {
+              gateway,
+              cidv1: await this.resolvePath(galleryPath),
+              title: params.galleryName,
+              text: config.path?.files?.text,
+              folders: [
+                {
+                  path: '.',
+                  images: galleryContents
+                }
+              ]
+            }
+          ]
+        }
       }
+
+      const renderGallery = async (json) => {
+        json.galleries.forEach((element, index) => {
+          if (usePagination) {
+            element.folders.forEach((folder) => {
+              const imgLen = folder.images.length
+              folder.images = folder.images.slice(params.pageNo * itemsPerPage - itemsPerPage, params.pageNo * itemsPerPage)
+              const maxPage = Math.ceil(imgLen * 1.0 / itemsPerPage)
+              params.pageMax = maxPage > params.pageMax ? maxPage : params.pageMax
+            })
+          }
+          if (element.text) {
+            try {
+              const response = await doFetch(`${gateway}/ipfs/${element.cidv1}/${element.text}`)
+              if (response.status === 200) {
+                const text = await response.text()
+                json.galleries[index].text = this.md.render(text)
+                document.querySelector('#gallery').innerHTML = templates.gallery.render(json)
+              }
+            } catch {
+              document.querySelector('#gallery').innerHTML = templates.gallery.render(json)
+            }
+          } else {
+            document.querySelector('#gallery').innerHTML = templates.gallery.render(json)
+          }
+        })
+      }
+
+      return buildGallery().then(json => renderGallery(json))
     }
+
 
     this.addGallery = (gallery, galPath = '') => {
       $('#galleries-list').append(`<div class="page-links"><a href="?galleriespath=${galPath}&galleryname=${gallery}&page=1${gpQuery}">${gallery}</a><br></div>`)
@@ -227,42 +240,41 @@ export class Gallery {
         const galleryPath = `${await this.findGallery()}/${params.galleryName}/${galleryFolder}`
         console.debug({ galleryPath })
 
-        this.buildJson(galleryPath)
-          .then(json => this.renderJson(json))
-          .then(() => {
-            $('#loader').hide()
-            if (usePagination) {
-              if (params.pageNo > 1) {
-                $('.page-links').append(`<a href="?galleryname=${params.galleryName}&page=1${gpQuery}"><<< First </a>&nbsp;&nbsp;&nbsp;&nbsp;`)
-                $('.page-links').append(`<a href="?galleryname=${params.galleryName}&page=${params.pageNo - 1}${gpQuery}"> < Prev</a>&nbsp;&nbsp;&nbsp;&nbsp;`)
-              }
-              if (params.pageNo <= params.pageMax - 1) {
-                $('.page-links').append(`<a href="?galleryname=${params.galleryName}&page=${params.pageNo + 1}${gpQuery}">Next ></a>&nbsp;&nbsp;&nbsp;&nbsp;`)
-                $('.page-links').append(`<a href="?galleryname=${params.galleryName}&page=${params.pageMax}${gpQuery}">Last >>></a>`)
-              }
-            }
+        await this.doRenderGallery(galleryPath)
 
-            $('.js-add-bookmark').on('click', function () {
-              const $el = $(this)
-              const bookmark = $el.data('bookmarkName')
-              localStorage.bookmark = bookmark
-            })
+        $('#loader').hide()
+        if (usePagination) {
+          if (params.pageNo > 1) {
+            $('.page-links').append(`<a href="?galleryname=${params.galleryName}&page=1${gpQuery}"><<< First </a>&nbsp;&nbsp;&nbsp;&nbsp;`)
+            $('.page-links').append(`<a href="?galleryname=${params.galleryName}&page=${params.pageNo - 1}${gpQuery}"> < Prev</a>&nbsp;&nbsp;&nbsp;&nbsp;`)
+          }
+          if (params.pageNo <= params.pageMax - 1) {
+            $('.page-links').append(`<a href="?galleryname=${params.galleryName}&page=${params.pageNo + 1}${gpQuery}">Next ></a>&nbsp;&nbsp;&nbsp;&nbsp;`)
+            $('.page-links').append(`<a href="?galleryname=${params.galleryName}&page=${params.pageMax}${gpQuery}">Last >>></a>`)
+          }
+        }
 
-            if (localStorage.bookmark) {
-              const bookmark = localStorage.bookmark
-              delete localStorage.bookmark
-              const $el = $(`[data-bookmark-name="${bookmark}"]`)
-              if ($el) {
-                setTimeout(function () {
-                  $('html, body').scrollTop($el.offset().top)
-                }, 1000)
-              }
-            }
-          })
+        $('.js-add-bookmark').on('click', function () {
+          const $el = $(this)
+          const bookmark = $el.data('bookmarkName')
+          localStorage.bookmark = bookmark
+        })
+
+        if (localStorage.bookmark) {
+          const bookmark = localStorage.bookmark
+          delete localStorage.bookmark
+          const $el = $(`[data-bookmark-name="${bookmark}"]`)
+          if ($el) {
+            setTimeout(function () {
+              $('html, body').scrollTop($el.offset().top)
+            }, 1000)
+          }
+        }
+
       } else {
         $('#gallery').append('<ul id="galleries-list"></ul>')
         const existing = new Set()
-        const galleriesPaths = typeof config.path.galleries === 'string' ?  [config.path.galleries] : config.path.galleries
+        const galleriesPaths = typeof config.path.galleries === 'string' ? [config.path.galleries] : config.path.galleries
         for (const galPath of galleriesPaths) {
           for await (const gallery of this.listGalleries(galPath)) {
             if (
