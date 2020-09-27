@@ -1,9 +1,9 @@
 export class Gallery {
-  constructor({ params, config, cache }) {
+  constructor ({ params, config, cache }) {
     console.debug({ params, config })
 
     class QueryablePromise extends Promise {
-      constructor(executor) {
+      constructor (executor) {
         super((resolve, reject) => executor(
           data => {
             resolve(data)
@@ -17,7 +17,7 @@ export class Gallery {
         this._status = 'Pending'
       }
 
-      get status() {
+      get status () {
         return this._status
       }
     }
@@ -40,10 +40,10 @@ export class Gallery {
 
     const doFetch = (url, options = {}) => fetch(url, { referrerPolicy: 'no-referrer', ...options })
 
-    async function* callApiEndpoints(endPoints) {
+    async function * callApiEndpoints (endPoints) {
       const abort = new AbortController()
       const signal = abort.signal
-      yield* endPoints.map(async ep => {
+      yield * endPoints.map(async ep => {
         try {
           const response = await doFetch(ep, { signal })
           if (response.status === 200) {
@@ -83,13 +83,13 @@ export class Gallery {
       return result
     }
 
-    this.listFolder = async function* (folderPath, itemType, quick = true) {
+    this.listFolder = async function * (folderPath, itemType, quick = true) {
       console.log(`Listing folder ${folderPath}`)
       const storageKey = { 1: 'folders', 2: 'files' }[itemType]
       const cacheTTL = { 1: folderCacheTTL, 2: fileCacheTTL }[itemType]
       const localResults = cache.getWithExpiry(storageKey, folderPath) || []
 
-      yield* localResults.filter(l => l.Type === itemType).map(lr => lr.Name)
+      yield * localResults.filter(l => l.Type === itemType).map(lr => lr.Name)
 
       if (!(quick && localResults.length > 0)) {
         console.debug(`Slow ${folderPath} quick: ${quick} length: ${localResults.length}`)
@@ -105,7 +105,7 @@ export class Gallery {
               .filter(li => li.Type === itemType)
             if (missing.length > 0) {
               cache.setWithExpiry(storageKey, folderPath, [...localResults, ...missing], cacheTTL)
-              yield* missing.map(li => li.Name)
+              yield * missing.map(li => li.Name)
             }
           }
         }
@@ -185,20 +185,19 @@ export class Gallery {
               if (response.status === 200) {
                 const text = await response.text()
                 galleryItem.text = this.md.render(text)
-                document.querySelector('#gallery').innerHTML = templates.gallery.render(json)
+              } else {
+                galleryItem.text = ''
               }
             } catch {
-              document.querySelector('#gallery').innerHTML = templates.gallery.render(json)
+              galleryItem.text = ''
             }
-          } else {
-            document.querySelector('#gallery').innerHTML = templates.gallery.render(json)
           }
+          document.querySelector('#gallery').innerHTML = templates.gallery.render(json)
         }
       }
 
       return buildGallery().then(json => renderGallery(json))
     }
-
 
     this.addGallery = (gallery, galPath = '') => {
       $('#galleries-list').append(`<div class="page-links"><a href="?galleriespath=${galPath}&galleryname=${gallery}&page=1${gpQuery}">${gallery}</a><br></div>`)
@@ -270,7 +269,6 @@ export class Gallery {
             }, 1000)
           }
         }
-
       } else {
         $('#gallery').append('<ul id="galleries-list"></ul>')
         const existing = new Set()

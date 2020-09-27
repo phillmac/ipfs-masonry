@@ -1,5 +1,5 @@
 export class Cache {
-  constructor() {
+  constructor () {
     if ((!localStorage.cacheVersion) && (localStorage.folders || localStorage.files)) {
       localStorage.cacheVersion = '0.1.0'
     } else if (!localStorage.cacheVersion) {
@@ -8,13 +8,13 @@ export class Cache {
 
     this.jsonParseOrDefault = (str, defaultVal) => {
       try {
-        const result = JSON.parse(LZString.decompress(str));
+        const result = JSON.parse(LZString.decompress(str))
         if (!result) {
-          return defaultVal;
+          return defaultVal
         }
         return result
       } catch (e) {
-        return defaultVal;
+        return defaultVal
       }
     }
 
@@ -54,7 +54,7 @@ export class Cache {
       const expiry = now.getTime() + ttl * 1000 + Math.floor(Math.random() * ttl * 1000)
       const item = {
         value,
-        expiry,
+        expiry
       }
       console.debug({ path, expiry })
       const keyItem = this.jsonParseOrDefault(localStorage.getItem(key), {})
