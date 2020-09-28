@@ -266,7 +266,7 @@ export class Gallery {
           if (params.pageNo <= params.pageMax - 1) {
             const nextPage = this.getQueryParams({ gallery: params.galleryName, page: params.pageNo + 1, urlParams })
             const lastPage = this.getQueryParams({ gallery: params.galleryName, page: params.pageMax, urlParams })
-            $('.page-links').append(`<a href="?galleryname=${nextPage}">Next ></a>&nbsp;&nbsp;&nbsp;&nbsp;`)
+            $('.page-links').append(`<a href="?${nextPage}">Next ></a>&nbsp;&nbsp;&nbsp;&nbsp;`)
             $('.page-links').append(`<a href="?${lastPage}">Last >>></a>`)
           }
         }
@@ -298,7 +298,7 @@ export class Gallery {
               await this.hasGallery(`${galPath}/${gallery}`, galleryFolder) &&
               await this.hasThumbs(`${galPath}/${gallery}/${galleryFolder}`)
             ) {
-              this.addGallery(gallery, {galleriespath: galPath})
+              this.addGallery(gallery, { galleriespath: galPath })
               existing.add(gallery)
             }
           }
