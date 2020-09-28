@@ -203,7 +203,7 @@ export class Gallery {
       if (!(config?.pagination?.disabled)) {
         queryParams.append('page', page)
       }
-      for (const k of urlParams) {
+      for (const k of Object.keys(urlParams)) {
         queryParams.set(k, urlParams[k])
       }
       return queryParams.toString()
