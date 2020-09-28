@@ -21,8 +21,6 @@ export class Gallery {
         return this._status
       }
     }
-
-    const gpQuery = params?.path?.galleries ? `&galleriespath=${params.path.galleries}` : ''
     const usePagination = (!config.pagination.disabled) && params.pageNo
     const itemsPerPage = config.pagination.itemsPerPage
     const galleryFolder = config.path.names[params.galleryFolderName]
@@ -199,8 +197,22 @@ export class Gallery {
       return buildGallery().then(json => renderGallery(json))
     }
 
-    this.addGallery = (gallery, galPath = '') => {
-      $('#galleries-list').append(`<div class="page-links"><a href="?galleriespath=${galPath}&galleryname=${gallery}&page=1${gpQuery}">${gallery}</a><br></div>`)
+    this.getQueryParams = ({ gallery, page, urlParams }) => {
+      const queryParams = new URLSearchParams()
+      queryParams.append('galleryname', gallery)
+      if (!(config?.pagination?.disabled)) {
+        queryParams.append('page', page)
+      }
+      for (const k of urlParams) {
+        queryParams.set(k, urlParams[k])
+      }
+      return queryParams.toString()
+    }
+
+    this.addGallery = (gallery, urlParams) => {
+      const queryParams = this.getQueryParams({ gallery, page: 1, urlParams })
+
+      $('#galleries-list').append(`<div class="page-links"><a href="?${queryParams}">${gallery}</a><br></div>`)
       $('#galleries-list').append($('#galleries-list').children().detach().sort((a, b) => {
         const atxt = a.textContent.toLowerCase()
         const btxt = b.textContent.toLowerCase()
@@ -236,20 +248,26 @@ export class Gallery {
      */
     this.render = async () => {
       if (params.galleryName) {
-        const galleryPath = `${await this.findGallery()}/${params.galleryName}/${galleryFolder}`
-        console.debug({ galleryPath })
+        const galleriesPath = await this.findGallery()
+        const fullGalleryPath = `${galleriesPath}/${params.galleryName}/${galleryFolder}`
+        console.debug({ galleriesPath, fullGalleryPath })
+        const urlParams = { galleriespath: galleriesPath }
 
-        await this.doRenderGallery(galleryPath)
+        await this.doRenderGallery(fullGalleryPath)
 
         $('#loader').hide()
         if (usePagination) {
           if (params.pageNo > 1) {
-            $('.page-links').append(`<a href="?galleryname=${params.galleryName}&page=1${gpQuery}"><<< First </a>&nbsp;&nbsp;&nbsp;&nbsp;`)
-            $('.page-links').append(`<a href="?galleryname=${params.galleryName}&page=${params.pageNo - 1}${gpQuery}"> < Prev</a>&nbsp;&nbsp;&nbsp;&nbsp;`)
+            const firstPage = this.getQueryParams({ gallery: params.galleryName, page: 1, urlParams })
+            const prevPage = this.getQueryParams({ gallery: params.galleryName, page: params.pageNo - 1, urlParams })
+            $('.page-links').append(`<a href="?${firstPage}"><<< First </a>&nbsp;&nbsp;&nbsp;&nbsp;`)
+            $('.page-links').append(`<a href="?${prevPage}"> < Prev</a>&nbsp;&nbsp;&nbsp;&nbsp;`)
           }
           if (params.pageNo <= params.pageMax - 1) {
-            $('.page-links').append(`<a href="?galleryname=${params.galleryName}&page=${params.pageNo + 1}${gpQuery}">Next ></a>&nbsp;&nbsp;&nbsp;&nbsp;`)
-            $('.page-links').append(`<a href="?galleryname=${params.galleryName}&page=${params.pageMax}${gpQuery}">Last >>></a>`)
+            const nextPage = this.getQueryParams({ gallery: params.galleryName, page: params.pageNo + 1, urlParams })
+            const lastPage = this.getQueryParams({ gallery: params.galleryName, page: params.pageMax, urlParams })
+            $('.page-links').append(`<a href="?galleryname=${nextPage}">Next ></a>&nbsp;&nbsp;&nbsp;&nbsp;`)
+            $('.page-links').append(`<a href="?${lastPage}">Last >>></a>`)
           }
         }
 
@@ -280,7 +298,7 @@ export class Gallery {
               await this.hasGallery(`${galPath}/${gallery}`, galleryFolder) &&
               await this.hasThumbs(`${galPath}/${gallery}/${galleryFolder}`)
             ) {
-              this.addGallery(gallery, galPath)
+              this.addGallery(gallery, {galleriespath: galPath})
               existing.add(gallery)
             }
           }
