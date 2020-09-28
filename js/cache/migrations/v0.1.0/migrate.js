@@ -8,7 +8,7 @@ export function migrate (cache) {
 
     if (cache.files) {
       console.info(`Files size before ${cache.files.length}`)
-      cache.files = LZString.compress(localScachetorage.files)
+      cache.files = LZString.compress(cache.files)
       console.info(`Files size after ${cache.files.length}`)
     }
     cache.cacheVersion = '0.2.0'
