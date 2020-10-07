@@ -149,15 +149,11 @@ export class Gallery {
 
       const sortContents = (contents) => {
         const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' })
-        const ignoreFileExt = config?.sort?.ignoreFileExt
-        const stringReverse = config?.sort?.stringReverse
+        const useFileIDNo = config?.sort?.useFileIDNo
 
         const getSortName = (n) => {
-          if (ignoreFileExt) {
-            n = n.replace(/\.[^/.]+$/, '')
-          }
-          if (stringReverse) {
-            n = [...n].reverse().join('')
+          if (useFileIDNo) {
+            return n.match('(\d+)(?!.*\d)')
           }
           return n
         }
@@ -169,8 +165,11 @@ export class Gallery {
           }
         })
 
-        return items.sort((a, b) => collator.compare(a.sortName, b.sortName))
-          .map(i => i.originalName)
+        const sorted = items.sort((a, b) => collator.compare(a.sortName, b.sortName)).map(i => i.originalName)
+        if (config?.sort?.reverse) {
+          return sorted.reverse()
+        }
+        return sorted
       }
 
       const buildGallery = async () => {
