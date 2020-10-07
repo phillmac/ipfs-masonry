@@ -150,20 +150,27 @@ export class Gallery {
       const sortContents = (contents) => {
         const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' })
 
-        const mapped = contents.map(c => {
-          return {ln: c, sn: c.replace(/\.[^/.]+$/, "")}
+        const getSortName = (n) => {
+          if (config?.sort?.ignoreFileExt) {
+            n = n.replace(/\.[^/.]+$/, '')
+          }
+          if (config?.sort?.stringReverse) {
+            n = [...n].reverse().join('')
+          }
+          return n
+        }
+
+        const items = contents.map(c => {
+          return {
+            originalName: c,
+            sortName: getSortName(c)
+          }
         })
 
-        if (config?.sort?.stringReverse) {
-          contents = contents.map((s) => [...s].reverse().join(''))
-        }
-        const sorted = contents.sort((a,b)=> collator.compare(a.sn, b.sn)).map(c => c.ln)
-
-        if (config?.sort?.stringReverse) {
-          return sorted.map((s) => [...s].reverse().join(''))
-        }
-        return sorted
+        return items.sort((a, b) => collator.compare(a.sortName, b.sortName))
+          .map(i => i.originalName)
       }
+
       const buildGallery = async () => {
         return {
           author: 'DeviantArt IPFS Archive',
