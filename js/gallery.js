@@ -147,6 +147,10 @@ export class Gallery {
       const gateway = config.gateway.useOrigin ? window.location.origin : `https://${gatewayHost}`
       console.debug({ gateway })
 
+      const sortContents = (contents) => {
+        const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
+        return contents.sort(collator.compare)
+      }
       const buildGallery = async () => {
         return {
           author: 'DeviantArt IPFS Archive',
@@ -160,7 +164,7 @@ export class Gallery {
               folders: [
                 {
                   path: '.',
-                  images: galleryContents
+                  images: config?.sort?.natural ? sortContents(galleryContents) : galleryContents
                 }
               ]
             }
