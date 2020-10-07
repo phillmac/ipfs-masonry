@@ -149,12 +149,14 @@ export class Gallery {
 
       const sortContents = (contents) => {
         const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' })
+        const ignoreFileExt = config?.sort?.ignoreFileExt
+        const stringReverse = config?.sort?.stringReverse
 
         const getSortName = (n) => {
-          if (config?.sort?.ignoreFileExt) {
+          if (ignoreFileExt) {
             n = n.replace(/\.[^/.]+$/, '')
           }
-          if (config?.sort?.stringReverse) {
+          if (stringReverse) {
             n = [...n].reverse().join('')
           }
           return n
