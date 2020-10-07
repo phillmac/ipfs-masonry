@@ -153,7 +153,7 @@ export class Gallery {
 
         const getSortName = (n) => {
           if (useFileIDNo) {
-            const result = n.match(/(\d+)(?!.*\d)/)
+            const result = /(\d+)(?!.*\d)/.exec(n)
             return result
           }
           return n
