@@ -12,7 +12,8 @@ const getParams = () => {
     debug: (val) => { result.initScreenLog = ['true', 'TRUE'].includes(val) },
     itemsperpage: (val) => { result.pagination = { itemsPerPage: parseInt(val) } },
     page: (val) => { result.pageNo = parseInt(val) },
-    galleriespath: (val) => { result.path = { galleries: [val] } }
+    galleriespath: (val) => { result.path = { galleries: [val] } },
+    preview: (val) => { result.preview = true }
   }
 
   for (const k of [...searchParams.keys()]) {
