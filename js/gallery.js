@@ -280,21 +280,21 @@ export class Gallery {
         const galleriesPath = await this.findGallery()
         const fullGalleryPath = `${galleriesPath}/${params.galleryName}/${galleryFolder}`
         console.debug({ galleriesPath, fullGalleryPath })
-        const urlParams = { galleriespath: galleriesPath }
+        const urlParams = { preview: params.preview, galleriespath: galleriesPath }
 
         await this.doRenderGallery(fullGalleryPath)
 
         $('#loader').hide()
         if (usePagination) {
           if (params.pageNo > 1) {
-            const firstPage = this.getQueryParams({ preview: params.preview, gallery: params.galleryName, page: 1, urlParams })
-            const prevPage = this.getQueryParams({ preview: params.preview, gallery: params.galleryName, page: params.pageNo - 1, urlParams })
+            const firstPage = this.getQueryParams({ gallery: params.galleryName, page: 1, urlParams })
+            const prevPage = this.getQueryParams({ gallery: params.galleryName, page: params.pageNo - 1, urlParams })
             $('.page-links').append(`<a href="?${firstPage}"><<< First </a>&nbsp;&nbsp;&nbsp;&nbsp;`)
             $('.page-links').append(`<a href="?${prevPage}"> < Prev</a>&nbsp;&nbsp;&nbsp;&nbsp;`)
           }
           if (params.pageNo <= params.pageMax - 1) {
-            const nextPage = this.getQueryParams({ preview: params.preview, gallery: params.galleryName, page: params.pageNo + 1, urlParams })
-            const lastPage = this.getQueryParams({ preview: params.preview, gallery: params.galleryName, page: params.pageMax, urlParams })
+            const nextPage = this.getQueryParams({ gallery: params.galleryName, page: params.pageNo + 1, urlParams })
+            const lastPage = this.getQueryParams({ gallery: params.galleryName, page: params.pageMax, urlParams })
             $('.page-links').append(`<a href="?${nextPage}">Next ></a>&nbsp;&nbsp;&nbsp;&nbsp;`)
             $('.page-links').append(`<a href="?${lastPage}">Last >>></a>`)
           }
