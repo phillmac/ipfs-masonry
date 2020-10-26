@@ -327,7 +327,7 @@ export class Gallery {
               await this.hasGallery(`${galPath}/${gallery}`, galleryFolder) &&
               ((await this.hasThumbs(`${galPath}/${gallery}/${galleryFolder}`)) || params.preview)
             ) {
-              this.addGallery(gallery, { galleriespath: galPath })
+              this.addGallery(gallery, { preview: params.preview, galleriespath: galPath })
               existing.add(gallery)
             }
           }
