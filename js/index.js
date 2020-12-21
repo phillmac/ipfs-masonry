@@ -11,7 +11,7 @@ const getParams = () => {
 
   const mapping = {
     galleryname: (val) => { result.galleryName = val },
-    debug: (val) => { result.initScreenLog = ['true', 'TRUE'].includes(val) },
+    debug: (val) => { result.initScreenLog = truthy.includes(val.toLowerCase()) },
     itemsperpage: (val) => { result.pagination = { itemsPerPage: parseInt(val) } },
     page: (val) => { result.pageNo = parseInt(val) },
     galleriespath: (val) => { result.path = { galleries: [val] } },

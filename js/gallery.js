@@ -233,7 +233,9 @@ export class Gallery {
         queryParams.append('page', page)
       }
       for (const k of Object.keys(urlParams)) {
-        queryParams.set(k, urlParams[k])
+        if (urlParams[k] !== undefined) {
+          queryParams.set(k, urlParams[k])
+        }
       }
       return queryParams.toString()
     }
