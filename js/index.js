@@ -7,13 +7,15 @@ const getParams = () => {
     pageMax: 1
   }
 
+  const truthy = ['1', 'true', 'yes', 'on'] 
+
   const mapping = {
     galleryname: (val) => { result.galleryName = val },
     debug: (val) => { result.initScreenLog = ['true', 'TRUE'].includes(val) },
     itemsperpage: (val) => { result.pagination = { itemsPerPage: parseInt(val) } },
     page: (val) => { result.pageNo = parseInt(val) },
     galleriespath: (val) => { result.path = { galleries: [val] } },
-    preview: (val) => { result.preview = true }
+    preview: (val) => { result.preview = truthy.includes(val.toLowerCase()) }
   }
 
   for (const k of [...searchParams.keys()]) {
