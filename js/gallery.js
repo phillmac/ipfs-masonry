@@ -131,17 +131,20 @@ export class Gallery {
 
     this.listGallery = async (galleryPath) => {
       const results = []
-      const filter = [config.path?.files?.text]
+      // const filter = [config.path?.files?.text]
       for await (const item of this.listFolder(galleryPath, 2)) {
-        if (! (filter.includes(item))) {
+        // if (!(filter.includes(item))) {
           results.push(item)
-        }
+        // }
       }
       return results
     }
 
     this.doRenderGallery = async (galleryPath) => {
       const specialFileNames = Object.keys(config.path?.files)
+        .map(k => config.path?.files[k])
+        .filter(v => typeof v === 'string')
+      console.debug({ specialFileNames })
       const galleryContents = (await this.listGallery(galleryPath)).filter(fn => !(specialFileNames.includes(fn)))
       const hasVideo = galleryContents.some(i => config.gateway.useAlternateExtentions.some(e => i.includes(e)))
       const gatewayHost = hasVideo
