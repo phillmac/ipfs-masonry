@@ -297,14 +297,14 @@ export class Gallery {
           if (params.pageNo > 1) {
             const firstPage = this.getQueryParams({ gallery: params.galleryName, page: 1, urlParams })
             const prevPage = this.getQueryParams({ gallery: params.galleryName, page: params.pageNo - 1, urlParams })
-            $('.page-links').append(`<a href="?${firstPage}"><<< First </a>&nbsp;&nbsp;&nbsp;&nbsp;`)
-            $('.page-links').append(`<a href="?${prevPage}"> < Prev</a>&nbsp;&nbsp;&nbsp;&nbsp;`)
+            $('.page-links').append(`<a class="first-link" href="?${firstPage}"><<< First </a>&nbsp;&nbsp;&nbsp;&nbsp;`)
+            $('.page-links').append(`<a class="prev-link" href="?${prevPage}"> < Prev</a>&nbsp;&nbsp;&nbsp;&nbsp;`)
           }
           if (params.pageNo <= params.pageMax - 1) {
             const nextPage = this.getQueryParams({ gallery: params.galleryName, page: params.pageNo + 1, urlParams })
             const lastPage = this.getQueryParams({ gallery: params.galleryName, page: params.pageMax, urlParams })
-            $('.page-links').append(`<a href="?${nextPage}">Next ></a>&nbsp;&nbsp;&nbsp;&nbsp;`)
-            $('.page-links').append(`<a href="?${lastPage}">Last >>></a>`)
+            $('.page-links').append(`<a class="next-link "href="?${nextPage}">Next ></a>&nbsp;&nbsp;&nbsp;&nbsp;`)
+            $('.page-links').append(`<a class="last-link" href="?${lastPage}">Last >>></a>`)
           }
         }
 
