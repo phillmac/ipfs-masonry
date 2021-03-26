@@ -117,14 +117,14 @@ export class Gallery {
     }
 
     this.resolvePath = async (itemPath) => {
-	  if (cacheDisabled.includes('resolve)')) {
+      if (cacheDisabled.includes('resolve)')) {
         console.info('resolve cache is disabled')
-	  } else {
+      } else {
         const localResult = cache.getWithExpiry('resolvedPaths', itemPath)
         if (localResult) {
-		  return localResult
+          return localResult
         }
-	  }
+      }
 
       const endPoints = apiHosts.map(api => `${api}/${config.api.path}/resolve?arg=${itemPath}`)
       for await (const apiResponse of callApiEndpoints(endPoints)) {
@@ -286,13 +286,13 @@ export class Gallery {
     }
 
     /**
-		 * Entry point of the gallery.
-		 */
+		* Entry point of the gallery.
+		*/
     this.start = () => this.render()
 
     /**
-		 * Fetch JSON resources using HoganJS, then display it.
-		 */
+		* Fetch JSON resources using HoganJS, then display it.
+		*/
     this.render = async () => {
       if (params.galleryName) {
         const galleriesPath = await this.findGallery()
@@ -342,8 +342,8 @@ export class Gallery {
           for await (const gallery of this.listGalleries(galPath)) {
             if (
               (!(existing.has(gallery))) &&
-							await this.hasGallery(`${galPath}/${gallery}`, galleryFolder) &&
-							((await this.hasThumbs(`${galPath}/${gallery}/${galleryFolder}`)) || params.preview)
+              await this.hasGallery(`${galPath}/${gallery}`, galleryFolder) &&
+              ((await this.hasThumbs(`${galPath}/${gallery}/${galleryFolder}`)) || params.preview)
             ) {
               this.addGallery(gallery, { preview: params.preview, galleriespath: galPath })
               existing.add(gallery)
