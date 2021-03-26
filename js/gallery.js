@@ -120,7 +120,7 @@ export class Gallery {
       if (cacheDisabled.includes('resolve)')) {
         console.info('resolve cache is disabled')
       } else {
-        const localResult = await cache.getWithExpiry('resolvedPaths', itemPath)
+        const localResult = await cache.getWithExpiry('resolve', itemPath)
         if (localResult) {
           return localResult
         }
@@ -131,7 +131,7 @@ export class Gallery {
         if (apiResponse.Path) {
           const cidv0 = Multiaddr(apiResponse.Path).stringTuples()[0][1]
           const cidv1 = CidTool.base32(cidv0)
-          await cache.setWithExpiry('resolvedPaths', itemPath, cidv1, resolveCacheTTL)
+          await cache.setWithExpiry('resolve', itemPath, cidv1, resolveCacheTTL)
           return cidv1
         }
       }
