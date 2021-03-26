@@ -1,9 +1,9 @@
 export class Gallery {
-  constructor({ params, config, cache }) {
+  constructor ({ params, config, cache }) {
     console.debug({ params, config })
 
     class QueryablePromise extends Promise {
-      constructor(executor) {
+      constructor (executor) {
         super((resolve, reject) => executor(
           data => {
             resolve(data)
@@ -17,7 +17,7 @@ export class Gallery {
         this._status = 'Pending'
       }
 
-      get status() {
+      get status () {
         return this._status
       }
     }
@@ -39,10 +39,10 @@ export class Gallery {
 
     const doFetch = (url, options = {}) => fetch(url, { referrerPolicy: 'no-referrer', ...options })
 
-    async function* callApiEndpoints(endPoints) {
+    async function * callApiEndpoints (endPoints) {
       const abort = new AbortController()
       const signal = abort.signal
-      yield* endPoints.map(async ep => {
+      yield * endPoints.map(async ep => {
         try {
           const response = await doFetch(ep, { signal })
           if (response.status === 200) {
@@ -82,7 +82,7 @@ export class Gallery {
       return result
     }
 
-    this.listFolder = async function* (folderPath, itemType, quick = true) {
+    this.listFolder = async function * (folderPath, itemType, quick = true) {
       console.log(`Listing folder ${folderPath}`)
       const storageKey = { 1: 'folders', 2: 'files' }[itemType]
       const cacheTTL = { 1: folderCacheTTL, 2: fileCacheTTL }[itemType]
@@ -91,8 +91,8 @@ export class Gallery {
       if (cacheDisabled.includes(storageKey)) {
         console.info(`${storageKey} cache is disabled `)
       } else {
-        (cache.getWithExpiry(storageKey, folderPath) || []).forEach(i => localResults.push(i))
-        yield* localResults.filter(l => l.Type === itemType).map(lr => lr.Name)
+        (await cache.getWithExpiry(storageKey, folderPath) || []).forEach(i => localResults.push(i))
+        yield * localResults.filter(l => l.Type === itemType).map(lr => lr.Name)
       }
 
       if (!(quick && localResults.length > 0)) {
@@ -108,8 +108,8 @@ export class Gallery {
               .filter(li => !(localNames.includes(li.Name)))
               .filter(li => li.Type === itemType)
             if (missing.length > 0) {
-              cache.setWithExpiry(storageKey, folderPath, [...localResults, ...missing], cacheTTL)
-              yield* missing.map(li => li.Name)
+              await cache.setWithExpiry(storageKey, folderPath, [...localResults, ...missing], cacheTTL)
+              yield * missing.map(li => li.Name)
             }
           }
         }
@@ -120,7 +120,7 @@ export class Gallery {
       if (cacheDisabled.includes('resolve)')) {
         console.info('resolve cache is disabled')
       } else {
-        const localResult = cache.getWithExpiry('resolvedPaths', itemPath)
+        const localResult = await cache.getWithExpiry('resolvedPaths', itemPath)
         if (localResult) {
           return localResult
         }
@@ -131,7 +131,7 @@ export class Gallery {
         if (apiResponse.Path) {
           const cidv0 = Multiaddr(apiResponse.Path).stringTuples()[0][1]
           const cidv1 = CidTool.base32(cidv0)
-          cache.setWithExpiry('resolvedPaths', itemPath, cidv1, resolveCacheTTL)
+          await cache.setWithExpiry('resolvedPaths', itemPath, cidv1, resolveCacheTTL)
           return cidv1
         }
       }
@@ -286,13 +286,13 @@ export class Gallery {
     }
 
     /**
-		* Entry point of the gallery.
-		*/
+			* Entry point of the gallery.
+			*/
     this.start = () => this.render()
 
     /**
-		* Fetch JSON resources using HoganJS, then display it.
-		*/
+			* Fetch JSON resources using HoganJS, then display it.
+			*/
     this.render = async () => {
       if (params.galleryName) {
         const galleriesPath = await this.findGallery()
@@ -342,8 +342,8 @@ export class Gallery {
           for await (const gallery of this.listGalleries(galPath)) {
             if (
               (!(existing.has(gallery))) &&
-              await this.hasGallery(`${galPath}/${gallery}`, galleryFolder) &&
-              ((await this.hasThumbs(`${galPath}/${gallery}/${galleryFolder}`)) || params.preview)
+							await this.hasGallery(`${galPath}/${gallery}`, galleryFolder) &&
+							((await this.hasThumbs(`${galPath}/${gallery}/${galleryFolder}`)) || params.preview)
             ) {
               this.addGallery(gallery, { preview: params.preview, galleriespath: galPath })
               existing.add(gallery)

@@ -34,8 +34,8 @@ $(document).ready(async function ($) {
 
   $('.nav-item').filter((idx, elem) => elem.textContent.trim().toLowerCase() === params.galleryFolderName).addClass('active')
 
-  const imports = await Promise.all([import('./gallery.js'), import('./cache/cache.js'), import('../../settings/config/config.js')])
-  const [{ Gallery }, { Cache }, { Config }] = imports
+  const imports = await Promise.all([import('./gallery.js'), import('./cache/cache.js'), import('./cache/idb/index.js'), import('../../settings/config/config.js')])
+  const [{ Gallery }, { localStoreCache, indexDBCache }, { openDB }, { Config }] = imports
   const conf = new Config({ params })
   await conf.migrate()
   const config = await conf.get()
@@ -43,7 +43,10 @@ $(document).ready(async function ($) {
   if ((!params?.initScreenLog) && config?.debug?.screenlog?.enabled) {
     screenLog.init()
   }
-  const cache = new Cache({ params, config })
+  const cacheClass = { local: localStoreCache, idb: indexDBCache }[config.cache?.storage || 'local']
+
+  const cache = new (cacheClass)({ params, config, openDB })
+  cache?.init && await cache.init()
 
   const gallery = new Gallery({ params, config, cache })
   gallery.start()
