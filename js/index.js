@@ -7,7 +7,7 @@ const getParams = () => {
     pageMax: 1
   }
 
-  const truthy = ['1', 'true', 'yes', 'on'] 
+  const truthy = ['1', 'true', 'yes', 'on']
 
   const mapping = {
     galleryname: (val) => { result.galleryName = val },
