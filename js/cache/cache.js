@@ -75,7 +75,7 @@ export class indexedDBCache {
     })
 
     this.getWithExpiry = async (key, path) => {
-      const item = (await dbPromise).get(key, path)
+      const item = await (await dbPromise).get(key, path)
 
       if (!item) {
         return null
@@ -87,7 +87,7 @@ export class indexedDBCache {
         // If the item is expired, delete the item from storage
         // and return null
         console.debug({ path, now, expiry })
-        delete (await dbPromise).delete(key, path)
+        await (await dbPromise).delete(key, path)
         return null
       }
       return item.value
