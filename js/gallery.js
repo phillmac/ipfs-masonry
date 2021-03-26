@@ -27,7 +27,7 @@ export class Gallery {
     const folderCacheTTL = config.cache.TTL.folders
     const resolveCacheTTL = config.cache.TTL.resolve
     const fileCacheTTL = config.cache.TTL.files
-    const cacheDisabled = Object.keys(config.cache?.disable).filter((k) => config.cache?.disabled?.[k] === true)
+    const cacheDisabled = Object.keys(config.cache?.disable).filter((k) => config.cache?.disable?.[k] === true)
 
     const apiDisableCurrentHost = Boolean(
       Object.keys(config.api.disabledHostNames)
