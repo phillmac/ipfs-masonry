@@ -68,7 +68,9 @@ export class indexedDBCache {
   constructor({ openDB }) {
     const dbPromise = openDB('cache-db', 1, {
       upgrade(db) {
-        db.createObjectStore('cache')
+        db.createObjectStore('folders')
+        db.createObjectStore('files')
+        db.createObjectStore('resolve')
       }
     })
 
