@@ -1,9 +1,9 @@
 export class Gallery {
-  constructor({ params, config, cache }) {
+  constructor ({ params, config, cache }) {
     console.debug({ params, config })
 
     class QueryablePromise extends Promise {
-      constructor(executor) {
+      constructor (executor) {
         super((resolve, reject) => executor(
           data => {
             resolve(data)
@@ -17,7 +17,7 @@ export class Gallery {
         this._status = 'Pending'
       }
 
-      get status() {
+      get status () {
         return this._status
       }
     }
@@ -27,6 +27,7 @@ export class Gallery {
     const folderCacheTTL = config.cache.TTL.folders
     const resolveCacheTTL = config.cache.TTL.resolve
     const fileCacheTTL = config.cache.TTL.files
+    const cacheDisabled = Object.keys(config.cache?.disabled).filter((k) => config.cache?.disabled?.[k] === true)
 
     const apiDisableCurrentHost = Boolean(
       Object.keys(config.api.disabledHostNames)
@@ -38,10 +39,10 @@ export class Gallery {
 
     const doFetch = (url, options = {}) => fetch(url, { referrerPolicy: 'no-referrer', ...options })
 
-    async function* callApiEndpoints(endPoints) {
+    async function * callApiEndpoints (endPoints) {
       const abort = new AbortController()
       const signal = abort.signal
-      yield* endPoints.map(async ep => {
+      yield * endPoints.map(async ep => {
         try {
           const response = await doFetch(ep, { signal })
           if (response.status === 200) {
@@ -81,13 +82,18 @@ export class Gallery {
       return result
     }
 
-    this.listFolder = async function* (folderPath, itemType, quick = true) {
+    this.listFolder = async function * (folderPath, itemType, quick = true) {
       console.log(`Listing folder ${folderPath}`)
       const storageKey = { 1: 'folders', 2: 'files' }[itemType]
       const cacheTTL = { 1: folderCacheTTL, 2: fileCacheTTL }[itemType]
-      const localResults = cache.getWithExpiry(storageKey, folderPath) || []
+      const localResults = []
 
-      yield* localResults.filter(l => l.Type === itemType).map(lr => lr.Name)
+      if (cacheDisabled.includes(storageKey)) {
+        console.info(`${storageKey} cache is disabled `)
+      } else {
+        (cache.getWithExpiry(storageKey, folderPath) || []).forEach(i => localResults.push(i))
+        yield * localResults.filter(l => l.Type === itemType).map(lr => lr.Name)
+      }
 
       if (!(quick && localResults.length > 0)) {
         console.debug(`Slow ${folderPath} quick: ${quick} length: ${localResults.length}`)
@@ -103,7 +109,7 @@ export class Gallery {
               .filter(li => li.Type === itemType)
             if (missing.length > 0) {
               cache.setWithExpiry(storageKey, folderPath, [...localResults, ...missing], cacheTTL)
-              yield* missing.map(li => li.Name)
+              yield * missing.map(li => li.Name)
             }
           }
         }
@@ -111,10 +117,14 @@ export class Gallery {
     }
 
     this.resolvePath = async (itemPath) => {
-      const localResult = cache.getWithExpiry('resolvedPaths', itemPath)
-      if (localResult) {
-        return localResult
-      }
+	  if (cacheDisabled.includes('resolve)')) {
+        console.info('resolve cache is disabled')
+	  } else {
+        const localResult = cache.getWithExpiry('resolvedPaths', itemPath)
+        if (localResult) {
+		  return localResult
+        }
+	  }
 
       const endPoints = apiHosts.map(api => `${api}/${config.api.path}/resolve?arg=${itemPath}`)
       for await (const apiResponse of callApiEndpoints(endPoints)) {
@@ -134,7 +144,7 @@ export class Gallery {
       // const filter = [config.path?.files?.text]
       for await (const item of this.listFolder(galleryPath, 2)) {
         // if (!(filter.includes(item))) {
-          results.push(item)
+        results.push(item)
         // }
       }
       return results
@@ -276,13 +286,13 @@ export class Gallery {
     }
 
     /**
-     * Entry point of the gallery.
-     */
+		 * Entry point of the gallery.
+		 */
     this.start = () => this.render()
 
     /**
-     * Fetch JSON resources using HoganJS, then display it.
-     */
+		 * Fetch JSON resources using HoganJS, then display it.
+		 */
     this.render = async () => {
       if (params.galleryName) {
         const galleriesPath = await this.findGallery()
@@ -332,8 +342,8 @@ export class Gallery {
           for await (const gallery of this.listGalleries(galPath)) {
             if (
               (!(existing.has(gallery))) &&
-              await this.hasGallery(`${galPath}/${gallery}`, galleryFolder) &&
-              ((await this.hasThumbs(`${galPath}/${gallery}/${galleryFolder}`)) || params.preview)
+							await this.hasGallery(`${galPath}/${gallery}`, galleryFolder) &&
+							((await this.hasThumbs(`${galPath}/${gallery}/${galleryFolder}`)) || params.preview)
             ) {
               this.addGallery(gallery, { preview: params.preview, galleriespath: galPath })
               existing.add(gallery)
