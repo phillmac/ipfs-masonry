@@ -1,5 +1,5 @@
 export class localStoreCache {
-  constructor () {
+  constructor() {
     if ((!localStorage.cacheVersion) && (localStorage.folders || localStorage.files)) {
       localStorage.cacheVersion = '0.1.0'
     } else if (!localStorage.cacheVersion) {
@@ -64,10 +64,10 @@ export class localStoreCache {
   }
 }
 
-export class IndexedDBCache {
-  constructor ({ openDB }) {
+export class indexedDBCache {
+  constructor({ openDB }) {
     const dbPromise = openDB('cache-db', 1, {
-      upgrade (db) {
+      upgrade(db) {
         db.createObjectStore('cache')
       }
     })
