@@ -282,7 +282,7 @@ export class Gallery {
           console.debug('has-item cache is disabled')
         } else {
           const cacheResult = await cache.getWithExpiry('has-item', cachePath)
-          if (cacheResult) {
+          if (cacheResult === true || cacheResult === false) {
             return cacheResult
           }
         }
