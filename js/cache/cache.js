@@ -66,12 +66,21 @@ export class localStoreCache {
 
 export class indexedDBCache {
   constructor ({ conf, openDB }) {
-    const dbPromise = openDB('cache-db', 1, {
-      upgrade (db) {
-        db.createObjectStore('folders')
-        db.createObjectStore('files')
-        db.createObjectStore('resolve')
+    const dbPromise = openDB('cache-db', 2, {
+      upgrade (db, oldVersion, newVersion) {
+        console.log('IDB upgrade', { oldVersion, newVersion })
+
+        if (oldVersion < 1) {
+          db.createObjectStore('folders')
+          db.createObjectStore('files')
+          db.createObjectStore('resolve')
+        }
+
+        if (oldVersion < 2) {
+          db.createObjectStore('has-item')
+        }
       }
+
     }).catch(() => {
       console.error('IDB broken')
       conf.set({ cache: { storage: 'local' } })
