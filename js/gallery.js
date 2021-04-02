@@ -1,9 +1,9 @@
 export class Gallery {
-  constructor({ params, config, cache }) {
+  constructor ({ params, config, cache }) {
     console.debug({ params, config })
 
     class QueryablePromise extends Promise {
-      constructor(executor) {
+      constructor (executor) {
         super((resolve, reject) => executor(
           data => {
             resolve(data)
@@ -17,7 +17,7 @@ export class Gallery {
         this._status = 'Pending'
       }
 
-      get status() {
+      get status () {
         return this._status
       }
     }
@@ -40,10 +40,10 @@ export class Gallery {
 
     const doFetch = (url, options = {}) => fetch(url, { referrerPolicy: 'no-referrer', ...options })
 
-    async function* callApiEndpoints(endPoints) {
+    async function * callApiEndpoints (endPoints) {
       const abort = new AbortController()
       const signal = abort.signal
-      yield* endPoints.map(async ep => {
+      yield * endPoints.map(async ep => {
         try {
           const response = await doFetch(ep, { signal })
           if (response.status === 200) {
@@ -83,7 +83,7 @@ export class Gallery {
       return result
     }
 
-    this.listFolder = async function* (folderPath, itemType, quick = true) {
+    this.listFolder = async function * (folderPath, itemType, quick = true) {
       console.log(`Listing folder ${folderPath}`)
       const storageKey = { 1: 'folders', 2: 'files' }[itemType]
       const cacheTTL = { 1: folderCacheTTL, 2: fileCacheTTL }[itemType]
@@ -93,7 +93,7 @@ export class Gallery {
         console.info(`${storageKey} cache is disabled `)
       } else {
         (await cache.getWithExpiry(storageKey, folderPath) || []).forEach(i => localResults.push(i))
-        yield* localResults.filter(l => l.Type === itemType).map(lr => lr.Name)
+        yield * localResults.filter(l => l.Type === itemType).map(lr => lr.Name)
       }
 
       if (!(quick && localResults.length > 0)) {
@@ -110,7 +110,7 @@ export class Gallery {
               .filter(li => li.Type === itemType)
             if (missing.length > 0) {
               await cache.setWithExpiry(storageKey, folderPath, [...localResults, ...missing], cacheTTL)
-              yield* missing.map(li => li.Name)
+              yield * missing.map(li => li.Name)
             }
           }
         }
@@ -275,7 +275,7 @@ export class Gallery {
       const policyEnabled = ['fallback', 'has-item-only', 'true', 'enabled']
 
       if (policyEnabled.includes(config.api?.endpoints?.hasitem?.policy)) {
-        const hasitemApiHosts = apiHosts.filter((h) => config.api?.endpoints?.hasitem?.[h] === true)
+        const hasitemApiHosts = apiHosts.filter((h) => config.api?.endpoints?.hasitem?.hosts?.[h] === true)
         if (hasitemApiHosts.length >= 1) {
           const endPoints = hasitemApiHosts.map(api => `${api}/${config.api.path}/hasitem?path=${folderPath}&item=${itemName}`)
           for await (const apiResponse of callApiEndpoints(endPoints)) {
