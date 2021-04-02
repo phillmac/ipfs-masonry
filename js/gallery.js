@@ -276,7 +276,7 @@ export class Gallery {
 
       if (policyEnabled.includes(config.api?.endpoints?.hasitem?.policy)) {
         const hasitemApiHosts = apiHosts.filter((h) => config.api?.endpoints?.hasitem?.[h] === true)
-        if (!hasitemApiHosts.length >= 1) {
+        if (hasitemApiHosts.length >= 1) {
           const endPoints = hasitemApiHosts.map(api => `${api}/${config.api.path}/hasitem?path=${folderPath}&item=${itemName}`)
           for await (const apiResponse of callApiEndpoints(endPoints)) {
             if (apiResponse === true || apiResponse === false) {
