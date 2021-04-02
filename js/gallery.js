@@ -25,9 +25,10 @@ export class Gallery {
     const itemsPerPage = config.pagination.itemsPerPage
     const galleryFolder = config?.path?.names?.[params.galleryFolderName] || 'gallery'
     const thumbsFolder = config?.path?.names?.thumbs || 'thumbs'
-    const folderCacheTTL = config.cache.TTL.folders
-    const resolveCacheTTL = config.cache.TTL.resolve
-    const fileCacheTTL = config.cache.TTL.files
+    const folderCacheTTL = config?.cache?.TTL?.folders || 604800
+    const fileCacheTTL = config?.cache?.TTL?.files || 86400
+    const hasItemCacheTTL = config?.cache?.TTL?.['has-item'] || 604800
+    const resolveCacheTTL = config?.cache?.TTL?.resolve || 2592000
     const cacheDisabled = Object.keys(config.cache?.disable).filter((k) => config.cache?.disable?.[k] === true)
 
     const apiDisableCurrentHost = Boolean(
@@ -90,7 +91,7 @@ export class Gallery {
       const localResults = []
 
       if (cacheDisabled.includes(storageKey)) {
-        console.info(`${storageKey} cache is disabled `)
+        console.debug(`${storageKey} cache is disabled`)
       } else {
         (await cache.getWithExpiry(storageKey, folderPath) || []).forEach(i => localResults.push(i))
         yield * localResults.filter(l => l.Type === itemType).map(lr => lr.Name)
@@ -119,7 +120,7 @@ export class Gallery {
 
     this.resolvePath = async (itemPath) => {
       if (cacheDisabled.includes('resolve)')) {
-        console.info('resolve cache is disabled')
+        console.debug('resolve cache is disabled')
       } else {
         const localResult = await cache.getWithExpiry('resolve', itemPath)
         if (localResult) {
@@ -275,11 +276,21 @@ export class Gallery {
       const policyEnabled = ['fallback', 'has-item-only', 'true', 'enabled']
 
       if (policyEnabled.includes(config.api?.endpoints?.hasitem?.policy)) {
+        const cachePath = `${folderPath} . ${itemName}`
+        if (cacheDisabled.includes('has-item')) {
+          console.debug('has-item cache is disabled')
+        } else {
+          const cacheResult = await cache.getWithExpiry('has-item', cachePath)
+          if (cacheResult) {
+            return cacheResult
+          }
+        }
         const hasitemApiHosts = apiHosts.filter((h) => config.api?.endpoints?.hasitem?.hosts?.[h] === true)
         if (hasitemApiHosts.length >= 1) {
           const endPoints = hasitemApiHosts.map(api => `${api}/${config.api.path}/hasitem?path=${folderPath}&item=${itemName}`)
           for await (const apiResponse of callApiEndpoints(endPoints)) {
             if (apiResponse === true || apiResponse === false) {
+              cache.setWithExpiry('has-item', cachePath, apiResponse, hasItemCacheTTL)
               return apiResponse
             }
           }
@@ -303,13 +314,13 @@ export class Gallery {
     this.hasGallery = (folderPath) => this.hasItem(folderPath, galleryFolder)
 
     /**
-      * Entry point of the gallery.
-      */
+		  * Entry point of the gallery.
+		  */
     this.start = () => this.render()
 
     /**
-      * Fetch JSON resources using HoganJS, then display it.
-      */
+		  * Fetch JSON resources using HoganJS, then display it.
+		  */
     this.render = async () => {
       if (params.galleryName) {
         const galleriesPath = await this.findGallery()
