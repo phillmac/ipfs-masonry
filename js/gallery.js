@@ -275,7 +275,7 @@ export class Gallery {
       const policyEnabled = ['fallback', 'has-item-only', 'true', 'enabled']
 
       if (policyEnabled.includes(config.api?.endpoints?.hasitem?.policy)) {
-        const hasitemApiHosts = apiHosts.map((h) => config.api?.endpoints?.hasitem?.[h] === true)
+        const hasitemApiHosts = apiHosts.filter((h) => config.api?.endpoints?.hasitem?.[h] === true)
         const endPoints = hasitemApiHosts.map(api => `${api}/${config.api.path}/hasitem?path=${folderPath}&item=${itemName}`)
         if (!hasitemApiHosts.length >= 1) {
           for await (const apiResponse of callApiEndpoints(endPoints)) {
