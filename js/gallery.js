@@ -23,7 +23,8 @@ export class Gallery {
     }
     const usePagination = (!config.pagination.disabled) && params.pageNo
     const itemsPerPage = config.pagination.itemsPerPage
-    const galleryFolder = config.path.names[params.galleryFolderName]
+    const galleryFolder = config?.path?.names?.[params.galleryFolderName] || 'gallery'
+    const thumbsFolder = config?.path?.names?.thumbs || 'thumbs'
     const folderCacheTTL = config.cache.TTL.folders
     const resolveCacheTTL = config.cache.TTL.resolve
     const fileCacheTTL = config.cache.TTL.files
@@ -158,7 +159,8 @@ export class Gallery {
       const galleryContents = (await this.listGallery(galleryPath)).filter(fn => !(specialFileNames.includes(fn)))
       const hasVideo = galleryContents.some(i => config.gateway.useAlternateExtentions.some(e => i.includes(e)))
       const gatewayHost = hasVideo
-        ? config.gateway.hosts.alternate : config.gateway.hosts.primary
+        ? config.gateway.hosts.alternate
+        : config.gateway.hosts.primary
 
       const gateway = config.gateway.useOrigin ? window.location.origin : `https://${gatewayHost}`
       console.debug({ gateway })
@@ -195,7 +197,7 @@ export class Gallery {
           description: '',
           galleries: [
             {
-              thumbs_dir: params.preview ? '' : config?.path?.names?.thumbs || '/thumbs',
+              thumbs_dir: params.preview ? '' : `/${thumbsFolder}`,
               thumbs_ext: params.preview ? '' : config?.path?.files?.extentions?.thumbs || '.jpg',
               gateway,
               cidv1: await this.resolvePath(galleryPath),
@@ -269,30 +271,45 @@ export class Gallery {
       }))
     }
 
-    this.hasThumbs = async (folderPath) => {
-      for await (const item of this.listFolder(folderPath, 1)) {
-        if (item === 'thumbs') {
+    this.hasItem = async (folderPath, itemName, itemType = 1) => {
+      const policyEnabled = ['fallback', 'has-item-only', 'true', 'enabled']
+
+      if (policyEnabled.includes(config.api?.endpoints?.hasitem?.policy)) {
+        const hasitemApiHosts = apiHosts.map((h) => config.api?.endpoints?.hasitem?.[h] === true)
+        const endPoints = hasitemApiHosts.map(api => `${api}/${config.api.path}/hasitem?path=${folderPath}&item=${itemName}`)
+        if (!hasitemApiHosts.length >= 1) {
+          for await (const apiResponse of callApiEndpoints(endPoints)) {
+            if (apiResponse === true || apiResponse === false) {
+              return apiResponse
+            }
+          }
+        }
+
+        if (config.api?.endpoints?.hasitem?.policy === 'has-item-only') {
+          throw new Error('Has item api fail')
+        }
+      }
+
+      for await (const item of this.listFolder(folderPath, itemType)) {
+        if (item === itemName) {
           return true
         }
       }
+      return false
     }
 
-    this.hasGallery = async (folderPath, galleryFolder) => {
-      for await (const item of this.listFolder(folderPath, 1)) {
-        if (item === galleryFolder) {
-          return true
-        }
-      }
-    }
+    this.hasThumbs = (folderPath) => this.hasItem(folderPath, thumbsFolder)
+
+    this.hasGallery = (folderPath) => this.hasItem(folderPath, galleryFolder)
 
     /**
-			* Entry point of the gallery.
-			*/
+      * Entry point of the gallery.
+      */
     this.start = () => this.render()
 
     /**
-			* Fetch JSON resources using HoganJS, then display it.
-			*/
+      * Fetch JSON resources using HoganJS, then display it.
+      */
     this.render = async () => {
       if (params.galleryName) {
         const galleriesPath = await this.findGallery()
@@ -342,8 +359,8 @@ export class Gallery {
           for await (const gallery of this.listGalleries(galPath)) {
             if (
               (!(existing.has(gallery))) &&
-							await this.hasGallery(`${galPath}/${gallery}`, galleryFolder) &&
-							((await this.hasThumbs(`${galPath}/${gallery}/${galleryFolder}`)) || params.preview)
+              await this.hasGallery(`${galPath}/${gallery}`, galleryFolder) &&
+              ((await this.hasThumbs(`${galPath}/${gallery}/${galleryFolder}`)) || params.preview)
             ) {
               this.addGallery(gallery, { preview: params.preview, galleriespath: galPath })
               existing.add(gallery)
