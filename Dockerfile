@@ -9,4 +9,4 @@ WORKDIR /masonry
 
 ENV IPFS_PIN="FALSE"
 
-CMD ["./scripts/ipfs.sh"]
+ENTRYPOINT ["./scripts/ipfs.sh"]
