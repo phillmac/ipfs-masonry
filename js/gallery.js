@@ -21,7 +21,7 @@ export class Gallery {
         return this._status
       }
     }
-    const usePagination = (!config.pagination.disabled) && params.pageNo
+    const usePagination = (!config.pagination.disabled) && Boolean(params.pageNo)
     const itemsPerPage = config.pagination.itemsPerPage
     const galleryFolder = config?.path?.names?.[params.galleryFolderName] || 'gallery'
     const thumbsFolder = config?.path?.names?.thumbs || 'thumbs'
