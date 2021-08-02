@@ -219,7 +219,7 @@ export class Gallery {
               folders: [
                 {
                   path: '.',
-                  images: config?.sort?.natural ? sortContents(galleryContents) : galleryContents
+                  images: config?.sort?.natural ? sortContents(galleryPage) : galleryPage
                 }
               ]
             }
