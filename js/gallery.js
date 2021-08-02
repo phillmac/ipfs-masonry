@@ -1,9 +1,9 @@
 export class Gallery {
-  constructor ({ params, config, cache }) {
+  constructor({ params, config, cache }) {
     console.debug({ params, config })
 
     class QueryablePromise extends Promise {
-      constructor (executor) {
+      constructor(executor) {
         super((resolve, reject) => executor(
           data => {
             resolve(data)
@@ -17,7 +17,7 @@ export class Gallery {
         this._status = 'Pending'
       }
 
-      get status () {
+      get status() {
         return this._status
       }
     }
@@ -41,10 +41,10 @@ export class Gallery {
 
     const doFetch = (url, options = {}) => fetch(url, { referrerPolicy: 'no-referrer', ...options })
 
-    async function * callApiEndpoints (endPoints) {
+    async function* callApiEndpoints(endPoints) {
       const abort = new AbortController()
       const signal = abort.signal
-      yield * endPoints.map(async ep => {
+      yield* endPoints.map(async ep => {
         try {
           const response = await doFetch(ep, { signal })
           if (response.status === 200) {
@@ -85,7 +85,7 @@ export class Gallery {
       return result
     }
 
-    this.listFolder = async function * (folderPath, itemType, quick = true) {
+    this.listFolder = async function* (folderPath, itemType, quick = true) {
       console.log(`Listing folder ${folderPath}`)
       const storageKey = { 1: 'folders', 2: 'files' }[itemType]
       const cacheTTL = { 1: folderCacheTTL, 2: fileCacheTTL }[itemType]
@@ -95,7 +95,7 @@ export class Gallery {
         console.debug(`${storageKey} cache is disabled`)
       } else {
         (await cache.getWithExpiry(storageKey, folderPath) || []).forEach(i => localResults.push(i))
-        yield * localResults.filter(l => l.Type === itemType).map(lr => lr.Name)
+        yield* localResults.filter(l => l.Type === itemType).map(lr => lr.Name)
       }
 
       if (!(quick && localResults.length > 0)) {
@@ -112,7 +112,7 @@ export class Gallery {
               .filter(li => li.Type === itemType)
             if (missing.length > 0) {
               await cache.setWithExpiry(storageKey, folderPath, [...localResults, ...missing], cacheTTL)
-              yield * missing.map(li => li.Name)
+              yield* missing.map(li => li.Name)
             }
           }
         }
@@ -160,14 +160,23 @@ export class Gallery {
       console.debug({ specialFileNames })
       const galleryContents = (await this.listGallery(galleryPath))
         .filter(fn => !(specialFileNames.includes(fn)))
-        .slice(params.pageNo * itemsPerPage - itemsPerPage, params.pageNo * itemsPerPage)
-      const hasVideo = galleryContents.some(i => config.gateway.useAlternateExtentions.some(e => i.includes(e)))
+      const galleryPage = usePagination
+        ? galleryContents
+          .slice(params.pageNo * itemsPerPage - itemsPerPage, params.pageNo * itemsPerPage)
+        : galleryContents
+      const hasVideo = galleryPage.some(i => config.gateway.useAlternateExtentions.some(e => i.includes(e)))
       const gatewayHost = hasVideo
         ? config.gateway.hosts.alternate
         : config.gateway.hosts.primary
 
       const gateway = config.gateway.useOrigin ? window.location.origin : `https://${gatewayHost}`
       console.debug({ gateway })
+
+      if (usePagination) {
+        const imgLen = galleryPage.length
+        const maxPage = Math.ceil(imgLen * 1.0 / itemsPerPage)
+        params.pageMax = maxPage > params.pageMax ? maxPage : params.pageMax
+      }
 
       const sortContents = (contents) => {
         const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' })
@@ -220,13 +229,6 @@ export class Gallery {
 
       const renderGallery = async (json) => {
         for (const galleryItem of json.galleries) {
-          if (usePagination) {
-            galleryItem.folders.forEach((folder) => {
-              const imgLen = folder.images.length
-              const maxPage = Math.ceil(imgLen * 1.0 / itemsPerPage)
-              params.pageMax = maxPage > params.pageMax ? maxPage : params.pageMax
-            })
-          }
           if (galleryItem.text) {
             try {
               const response = await doFetch(`${gateway}/ipfs/${galleryItem.cidv1}/${galleryItem.text}`)
