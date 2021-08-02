@@ -173,7 +173,7 @@ export class Gallery {
       console.debug({ gateway })
 
       if (usePagination) {
-        const imgLen = galleryPage.length
+        const imgLen = galleryContents.length
         const maxPage = Math.ceil(imgLen * 1.0 / itemsPerPage)
         params.pageMax = maxPage > params.pageMax ? maxPage : params.pageMax
       }
