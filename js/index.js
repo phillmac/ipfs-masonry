@@ -35,13 +35,11 @@ $(document).ready(async function ($) {
   $('.nav-item').filter((idx, elem) => elem.textContent.trim().toLowerCase() === params.galleryFolderName).addClass('active')
 
   const imports = await Promise.all([
-    import('./gallery.js'),
     import('./cache/cache.js'),
     import('./cache/idb/index.js'),
     import('../../settings/config/config.js')
   ])
   const [
-    { Gallery },
     { localStoreCache, indexedDBCache },
     { openDB },
     { Config }
@@ -68,6 +66,8 @@ $(document).ready(async function ($) {
     const galleriesList = new (GalleriesListClass)({ params, config, cache })
     galleriesList.start()
   } else {
+    const Gallery = await import('./gallery.js')
+
     $('#gallery').append('<ul id="galleries-list"></ul>')
     const gallery = new Gallery({ params, config, cache })
     gallery.start()
