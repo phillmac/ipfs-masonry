@@ -36,18 +36,12 @@ $(document).ready(async function ($) {
 
   const imports = await Promise.all([
     import('./gallery.js'),
-    import('galleries-list-ls.js'),
-    import('galleries-list-has-item.js'),
-    import('galleries-list-tree.js'),
     import('./cache/cache.js'),
     import('./cache/idb/index.js'),
     import('../../settings/config/config.js')
   ])
   const [
     { Gallery },
-    { GalleriesListLS },
-    { GalleriesListHasItem },
-    { GalleriesListTree },
     { localStoreCache, indexedDBCache },
     { openDB },
     { Config }
@@ -64,9 +58,17 @@ $(document).ready(async function ($) {
   const cache = new (CacheClass)({ params, conf, openDB })
   cache?.init && await cache.init()
 
-  if (galleryname === null || undefined === galleryname || galleryname === '') {
+  if (params?.galleryname === null || undefined === params?.galleryname || params?.galleryname === '') {
+    const GalleriesListClass = await ({
+      tree: () => import('galleries-list-tree.js'),
+      ls: () => import('galleries-list-ls.js'),
+      hasitem: () => import('galleries-list-has-item.js')
+    }[config?.gallerieslist || 'ls']())
 
+    const galleriesList = new (GalleriesListClass)({ params, config, cache })
+    galleriesList.start()
   } else {
+    $('#gallery').append('<ul id="galleries-list"></ul>')
     const gallery = new Gallery({ params, config, cache })
     gallery.start()
 

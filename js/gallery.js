@@ -367,7 +367,6 @@ export class Gallery {
           }
         }
       } else {
-        $('#gallery').append('<ul id="galleries-list"></ul>')
         const existing = new Set()
         const galleriesPaths = typeof config.path.galleries === 'string' ? [config.path.galleries] : config.path.galleries
         for (const galPath of galleriesPaths) {
