@@ -1,2 +1,2 @@
-export class galleriesListLS {
+export class GalleriesListLS {
 }

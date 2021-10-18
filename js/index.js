@@ -45,8 +45,8 @@ $(document).ready(async function ($) {
   ])
   const [
     { Gallery },
-    { galleriesListLS },
-    { galleriesListHasItem },
+    { GalleriesListLS },
+    { GalleriesListHasItem },
     { GalleriesListTree },
     { localStoreCache, indexedDBCache },
     { openDB },
