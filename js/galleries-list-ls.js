@@ -75,7 +75,7 @@ export class GalleriesListLS {
       }
     }
 
-    hasItem = async (folderPath, itemName) => {
+    const hasItem = async (folderPath, itemName) => {
       for await (const item of this.listFolder(folderPath)) {
         if (item === itemName) {
           return true
