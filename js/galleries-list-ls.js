@@ -41,7 +41,9 @@ export class GalleriesListLS {
     const galleryFolder = config?.path?.names?.[params.galleryFolderName] || 'gallery'
     const thumbsFolder = config?.path?.names?.thumbs || 'thumbs'
 
-    const listFolders = async function* (folderPath, quick = true) {
+    const basePaths = typeof config.path.galleries === 'string' ? [config.path.galleries] : config.path.galleries
+
+    const listFolder = async function* (folderPath, quick = true) {
       console.log(`Listing folder ${folderPath}`)
       const storageKey = 'folders'
       const cacheTTL = folderCacheTTL
@@ -76,7 +78,7 @@ export class GalleriesListLS {
     }
 
     const hasItem = async (folderPath, itemName) => {
-      for await (const item of this.listFolder(folderPath)) {
+      for await (const item of listFolder(folderPath)) {
         if (item === itemName) {
           return true
         }
@@ -90,7 +92,7 @@ export class GalleriesListLS {
 
     const filterGalleries = async function* (bPath) {
 
-      for await (const folderItem of listFolders(galleryPath)) {
+      for await (const folderItem of listFolder(galleryPath)) {
         if (
           await hasGallery(`${bPath}/${folderItem}`, galleryFolder)
         ) {
@@ -103,8 +105,6 @@ export class GalleriesListLS {
 
     this.start = async () => {
       const existing = new Set()
-
-      const basePaths = typeof config.path.galleries === 'string' ? [config.path.galleries] : config.path.galleries
 
       for (const bPath of basePaths) {
         for await (const gallery of filterGalleries(bPath)) {
