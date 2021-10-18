@@ -59,12 +59,12 @@ $(document).ready(async function ($) {
   if ((!params?.initScreenLog) && config?.debug?.screenlog?.enabled) {
     screenLog.init()
   }
-  const cacheClass = { local: localStoreCache, idb: indexedDBCache }[config.cache?.storage || 'local']
+  const CacheClass = { local: localStoreCache, idb: indexedDBCache }[config.cache?.storage || 'local']
 
-  const cache = new (cacheClass)({ params, conf, openDB })
+  const cache = new (CacheClass)({ params, conf, openDB })
   cache?.init && await cache.init()
 
-  if (null === galleryname || undefined === galleryname || '' === galleryname) {
+  if (galleryname === null || undefined === galleryname || galleryname === '') {
 
   } else {
     const gallery = new Gallery({ params, config, cache })
