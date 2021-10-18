@@ -1,4 +1,4 @@
-const folderCacheTTL = config?.cache?.TTL?.folders || 604800
+const itemType = 1
 
 const doFetch = (url, options = {}) => fetch(url, { referrerPolicy: 'no-referrer', ...options })
 
@@ -37,6 +37,11 @@ const addGallery = (gallery, urlParams) => {
 
 export class GalleriesListHasItem {
   constructor({ params, config, cache }) {
+    const folderCacheTTL = config?.cache?.TTL?.folders || 604800
+    const galleryFolder = config?.path?.names?.[params.galleryFolderName] || 'gallery'
+    const thumbsFolder = config?.path?.names?.thumbs || 'thumbs'
+
+
     const listGalleries = (path) => {
 
     }
