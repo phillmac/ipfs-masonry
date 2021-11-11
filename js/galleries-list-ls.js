@@ -35,6 +35,8 @@ const addGallery = (gallery, urlParams) => {
   }))
 }
 
+export const className = 'GalleriesListLS'
+
 export class GalleriesListLS {
   constructor({ params, config, cache }) {
     const folderCacheTTL = config?.cache?.TTL?.folders || 604800

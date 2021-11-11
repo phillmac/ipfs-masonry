@@ -21,6 +21,7 @@ async function* callApiEndpoints(endPoints) {
     }
   })
 }
+export const className = 'GalleriesListTree'
 
 export class GalleriesListTree {
   constructor({ params, config, cache }) {

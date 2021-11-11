@@ -63,7 +63,7 @@ $(document).ready(async function ($) {
       hasitem: () => import('./galleries-list-has-item.js')
     }[config?.gallerieslist || 'ls']())
 
-    const galleriesList = new (GalleriesListClass)({ params, config, cache })
+    const galleriesList = new (GalleriesListClass[GalleriesListClass.className])({ params, config, cache })
     galleriesList.start()
   } else {
     const Gallery = await import('./gallery.js')
