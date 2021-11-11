@@ -58,9 +58,9 @@ $(document).ready(async function ($) {
 
   if (params?.galleryname === null || undefined === params?.galleryname || params?.galleryname === '') {
     const GalleriesListClass = await ({
-      tree: () => import('galleries-list-tree.js'),
-      ls: () => import('galleries-list-ls.js'),
-      hasitem: () => import('galleries-list-has-item.js')
+      tree: () => import('./galleries-list-tree.js'),
+      ls: () => import('./galleries-list-ls.js'),
+      hasitem: () => import('./galleries-list-has-item.js')
     }[config?.gallerieslist || 'ls']())
 
     const galleriesList = new (GalleriesListClass)({ params, config, cache })
