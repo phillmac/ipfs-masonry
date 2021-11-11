@@ -40,8 +40,10 @@ export const className = 'GalleriesListHasItem'
 export class GalleriesListHasItem {
   constructor({ params, config, cache }) {
     const folderCacheTTL = config?.cache?.TTL?.folders || 604800
+    const cacheDisabled = Object.keys(config.cache?.disable).filter((k) => config.cache?.disable?.[k] === true)
     const galleryFolder = config?.path?.names?.[params.galleryFolderName] || 'gallery'
     const thumbsFolder = config?.path?.names?.thumbs || 'thumbs'
+
 
     const basePaths = typeof config.path.galleries === 'string' ? [config.path.galleries] : config.path.galleries
 
