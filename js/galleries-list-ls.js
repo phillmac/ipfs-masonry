@@ -94,7 +94,7 @@ export class GalleriesListLS {
 
     const filterGalleries = async function* (bPath) {
 
-      for await (const folderItem of listFolder(galleryPath)) {
+      for await (const folderItem of listFolder(bPath)) {
         if (
           await hasGallery(`${bPath}/${folderItem}`, galleryFolder)
         ) {
