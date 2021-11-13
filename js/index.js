@@ -35,11 +35,13 @@ $(document).ready(async function ($) {
   $('.nav-item').filter((idx, elem) => elem.textContent.trim().toLowerCase() === params.galleryFolderName).addClass('active')
 
   const imports = await Promise.all([
+    import('./version.js'),
     import('./cache/cache.js'),
     import('./cache/idb/index.js'),
     import('../../settings/config/config.js')
   ])
   const [
+    { version },
     { localStoreCache, indexedDBCache },
     { openDB },
     { Config }
@@ -51,6 +53,8 @@ $(document).ready(async function ($) {
   if ((!params?.initScreenLog) && config?.debug?.screenlog?.enabled) {
     screenLog.init()
   }
+  console.info('Version:', version)
+  
   const CacheClass = { local: localStoreCache, idb: indexedDBCache }[config.cache?.storage || 'local']
 
   const cache = new (CacheClass)({ params, conf, openDB })
