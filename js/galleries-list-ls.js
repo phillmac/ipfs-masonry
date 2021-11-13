@@ -121,7 +121,7 @@ export class GalleriesListLS {
       for (const bPath of basePaths) {
         for await (const gallery of filterGalleries(bPath)) {
           if (!existing.has(gallery)) {
-            addGallery(gallery, { preview: params.preview, galleriespath: galPath })
+            addGallery(gallery, { preview: params.preview, galleriespath: bPath })
             existing.add(gallery)
           }
         }
