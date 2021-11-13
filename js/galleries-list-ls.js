@@ -46,6 +46,15 @@ export class GalleriesListLS {
 
     const basePaths = typeof config.path.galleries === 'string' ? [config.path.galleries] : config.path.galleries
 
+    const apiDisableCurrentHost = Boolean(
+      Object.keys(config.api.disabledHostNames)
+        .filter(hn => config.api.disabledHostNames[hn])
+        .find(hn => window.location.hostname.includes(hn)))
+    const enabledApiHosts = Object.keys(config.api.hosts)
+      .filter(h => config.api.hosts[h])
+    const apiHosts = apiDisableCurrentHost ? enabledApiHosts : [...new Set([window.location.origin, ...enabledApiHosts])]
+
+
     const listFolder = async function* (folderPath, quick = true) {
       console.log(`Listing folder ${folderPath}`)
       const storageKey = 'folders'
