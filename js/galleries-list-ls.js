@@ -74,7 +74,7 @@ export class GalleriesListLS {
           }
         }
       }
-      console.log('Done')
+      console.log(`Finished listing folder ${folderPath}`)
     }
 
     const hasItem = async (folderPath, itemName) => {
