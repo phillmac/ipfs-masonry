@@ -21,9 +21,22 @@ async function* callApiEndpoints(endPoints) {
     }
   })
 }
+const getQueryParams = ({ gallery, page, urlParams }) => {
+  const queryParams = new URLSearchParams()
+  queryParams.append('galleryname', gallery)
+  if (!(config?.pagination?.disabled)) {
+    queryParams.append('page', page)
+  }
+  for (const k of Object.keys(urlParams)) {
+    if (urlParams[k] !== undefined) {
+      queryParams.set(k, urlParams[k])
+    }
+  }
+  return queryParams.toString()
+}
 
 const addGallery = (gallery, urlParams) => {
-  const queryParams = this.getQueryParams({ gallery, page: 1, urlParams })
+  const queryParams = getQueryParams({ gallery, page: 1, urlParams })
 
   $('#galleries-list').append(`<div class="page-links"><a href="?${queryParams}">${gallery}</a><br></div>`)
   $('#galleries-list').append($('#galleries-list').children().detach().sort((a, b) => {
