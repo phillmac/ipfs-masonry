@@ -7,7 +7,7 @@ COPY . /masonry
 
 WORKDIR /masonry
 
-RUN chmod u+x ./scripts/*.sh
+RUN chmod -v u+x ./scripts/*.sh
 
 ENV IPFS_PIN="FALSE"
 
