@@ -87,6 +87,7 @@ export class GalleriesListLS {
           }
         }
       }
+      console.log('Done')
     }
 
     const hasItem = async (folderPath, itemName) => {
