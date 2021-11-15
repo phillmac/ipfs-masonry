@@ -54,13 +54,15 @@ $(document).ready(async function ($) {
     screenLog.init()
   }
   console.info('Version:', version)
-  
+
   const CacheClass = { local: localStoreCache, idb: indexedDBCache }[config.cache?.storage || 'local']
 
   const cache = new (CacheClass)({ params, conf, openDB })
   cache?.init && await cache.init()
 
   if (params?.galleryname === null || undefined === params?.galleryname || params?.galleryname === '') {
+    $('#gallery').append('<ul id="galleries-list"></ul>')
+
     const GalleriesListClass = await ({
       tree: () => import('./galleries-list-tree.js'),
       ls: () => import('./galleries-list-ls.js'),
@@ -72,7 +74,6 @@ $(document).ready(async function ($) {
   } else {
     const Gallery = await import('./gallery.js')
 
-    $('#gallery').append('<ul id="galleries-list"></ul>')
     const gallery = new Gallery({ params, config, cache })
     gallery.start()
 
