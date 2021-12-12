@@ -60,7 +60,10 @@ $(document).ready(async function ($) {
   const cache = new (CacheClass)({ params, conf, openDB })
   cache?.init && await cache.init()
 
-  if (params?.galleryname === null || undefined === params?.galleryname || params?.galleryname === '') {
+  const gallName = params?.galleryname
+  console.debug({ gallName })
+
+  if (null === gallName || undefined === gallName || '' === gallName) {
     $('#gallery').append('<ul id="galleries-list"></ul>')
 
     const GalleriesListClass = await ({
