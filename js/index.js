@@ -60,7 +60,7 @@ $(document).ready(async function ($) {
   const cache = new (CacheClass)({ params, conf, openDB })
   cache?.init && await cache.init()
 
-  const gallName = params?.galleryname
+  const gallName = params?.galleryName
   console.debug({ gallName })
 
   if (null === gallName || undefined === gallName || '' === gallName) {
