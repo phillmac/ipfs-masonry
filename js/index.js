@@ -75,7 +75,7 @@ $(document).ready(async function ($) {
     const galleriesList = new (GalleriesListClass[GalleriesListClass.className])({ params, config, cache })
     galleriesList.start().then(() => $('#loader').hide())
   } else {
-    const Gallery = await import('./gallery.js')
+    const { Gallery } = await import('./gallery.js')
 
     const gallery = new Gallery({ params, config, cache })
     gallery.start()
