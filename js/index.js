@@ -55,7 +55,7 @@ $(document).ready(async function ($) {
   }
   console.info('Version:', version)
 
-  if (version.contains('rc')) {
+  if (version.includes('rc')) {
     document.title = 'IPFS Archive v' + version
   }
 
