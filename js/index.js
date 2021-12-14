@@ -29,7 +29,7 @@ const params = getParams()
 
 $(document).ready(async function ($) {
   if (params.initScreenLog) {
-    screenLog.init()
+    window.screenLog.init()
   }
 
   $('.nav-item').filter((idx, elem) => elem.textContent.trim().toLowerCase() === params.galleryFolderName).addClass('active')
@@ -51,9 +51,13 @@ $(document).ready(async function ($) {
   const config = await conf.get()
 
   if ((!params?.initScreenLog) && config?.debug?.screenlog?.enabled) {
-    screenLog.init()
+    window.screenLog.init()
   }
   console.info('Version:', version)
+
+  if (version.contains('rc')) {
+    document.title = 'IPFS Archive v' + version
+  }
 
   const CacheClass = { local: localStoreCache, idb: indexedDBCache }[config.cache?.storage || 'local']
 
@@ -63,7 +67,7 @@ $(document).ready(async function ($) {
   const gallName = params?.galleryName
   console.debug({ gallName })
 
-  if (null === gallName || undefined === gallName || '' === gallName) {
+  if (gallName === null || undefined === gallName || gallName === '') {
     $('#gallery').append('<ul id="galleries-list"></ul>')
 
     const GalleriesListClass = await ({
