@@ -34,7 +34,7 @@ export class GalleriesListTree {
 
     const listFolder = async function* (folderPath, quick = true) {
       console.log(`Listing folder ${folderPath}`)
-      const storageKey = 'folders'
+      const storageKey = 'tree'
       const cacheTTL = folderCacheTTL
       const localResults = []
 
