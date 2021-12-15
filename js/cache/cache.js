@@ -1,5 +1,5 @@
 export class localStoreCache {
-  constructor () {
+  constructor() {
     if ((!localStorage.cacheVersion) && (localStorage.folders || localStorage.files)) {
       localStorage.cacheVersion = '0.1.0'
     } else if (!localStorage.cacheVersion) {
@@ -65,9 +65,9 @@ export class localStoreCache {
 }
 
 export class indexedDBCache {
-  constructor ({ conf, openDB }) {
-    const dbPromise = openDB('cache-db', 2, {
-      upgrade (db, oldVersion, newVersion) {
+  constructor({ conf, openDB }) {
+    const dbPromise = openDB('cache-db', 3, {
+      upgrade(db, oldVersion, newVersion) {
         console.log('IDB upgrade', { oldVersion, newVersion })
 
         if (oldVersion < 1) {
@@ -78,6 +78,10 @@ export class indexedDBCache {
 
         if (oldVersion < 2) {
           db.createObjectStore('has-item')
+        }
+
+        if (oldVersion < 3) {
+          db.createObjectStore('tree')
         }
       }
 
