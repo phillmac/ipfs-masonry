@@ -36,8 +36,10 @@ export class GalleriesListTree {
       Object.keys(config.api.disabledHostNames)
         .filter(hn => config.api.disabledHostNames[hn])
         .find(hn => window.location.hostname.includes(hn)))
-    const treeApiHosts = apiHosts.filter((h) => config.api?.endpoints?.hasitem?.hosts?.[h] === true)
-    const apiHosts = apiDisableCurrentHost ? treeApiHosts : [...new Set([window.location.origin, ...treeApiHosts])]
+    const enabledApiHosts = Object.keys(config.api.hosts)
+      .filter(h => config.api.hosts[h])
+    const apiHosts = apiDisableCurrentHost ? enabledApiHosts : [...new Set([window.location.origin, ...enabledApiHosts])]
+    const treeApiHosts = apiHosts.filter((h) => config.api?.endpoints?.tree?.hosts?.[h] === true)
 
 
     const listFolder = async function* (folderPath, quick = true) {
@@ -56,7 +58,7 @@ export class GalleriesListTree {
       if (!(quick && localResults.length > 0)) {
         console.debug(`Slow ${folderPath} quick: ${quick} length: ${localResults.length}`)
 
-        const endPoints = apiHosts.map(api => `${api}/${config.api.path}/tree?arg=${folderPath}`)
+        const endPoints = treeApiHosts.map(api => `${api}/${config.api.path}/tree?arg=${folderPath}`)
 
         for await (const apiResponse of callApiEndpoints(endPoints)) {
           if (apiResponse.Objects) {
