@@ -67,7 +67,7 @@ export class GalleriesListTree {
     }
 
     const hasDir = async (folderPath, dirName) => {
-      for (const dirItem of await listFolder(folderPath)) {
+      for await (const dirItem of listFolder(folderPath)) {
         if (dirName === dirItem) {
           return true
         }
