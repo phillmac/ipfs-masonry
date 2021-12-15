@@ -92,6 +92,19 @@ export class GalleriesListTree {
       }
     }
 
+    const addGallery = (gallery, urlParams) => {
+      const queryParams = getQueryParams({ gallery, page: 1, urlParams })
+
+      $('#galleries-list').append(`<div class="page-links"><a href="?${queryParams}">${gallery}</a><br></div>`)
+      $('#galleries-list').append($('#galleries-list').children().detach().sort((a, b) => {
+        const atxt = a.textContent.toLowerCase()
+        const btxt = b.textContent.toLowerCase()
+        if (atxt === btxt) return 0
+        if (atxt > btxt) return 1
+        if (atxt < btxt) return -1
+      }))
+    }
+
     this.start = async () => {
       const existing = new Set()
 
