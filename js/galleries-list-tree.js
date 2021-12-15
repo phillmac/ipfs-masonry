@@ -58,7 +58,7 @@ export class GalleriesListTree {
       if (!(quick && localResults.length > 0)) {
         console.debug(`Slow ${folderPath} quick: ${quick} length: ${localResults.length}`)
 
-        const endPoints = treeApiHosts.map(api => `${api}/${config.api.path}/tree?arg=${folderPath}`)
+        const endPoints = treeApiHosts.map(api => `${api}/${config.api.path}/tree?path=${folderPath}`)
 
         for await (const apiResponse of callApiEndpoints(endPoints)) {
           if (apiResponse.Objects) {
