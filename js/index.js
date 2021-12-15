@@ -15,7 +15,8 @@ const getParams = () => {
     itemsperpage: (val) => { result.pagination = { itemsPerPage: parseInt(val) } },
     page: (val) => { result.pageNo = parseInt(val) },
     galleriespath: (val) => { result.path = { galleries: [val] } },
-    preview: (val) => { result.preview = truthy.includes(val.toLowerCase()) }
+    preview: (val) => { result.preview = truthy.includes(val.toLowerCase()) },
+    galleriesfinder: (val) => { result.galleriesFinder = val }
   }
 
   for (const k of [...searchParams.keys()]) {
@@ -70,14 +71,16 @@ $(document).ready(async function ($) {
   if (gallName === null || undefined === gallName || gallName === '') {
     $('#gallery').append('<ul id="galleries-list"></ul>')
 
-    const GalleriesListClass = await ({
+    console.debug({ galleriesFinder: config?.galleriesFinder })
+
+    const GalleriesFinderClass = await ({
       tree: () => import('./galleries-list-tree.js'),
       ls: () => import('./galleries-list-ls.js'),
       hasitem: () => import('./galleries-list-has-item.js')
-    }[config?.gallerieslist || 'ls']())
+    }[config?.galleriesFinder || 'ls']())
 
-    const galleriesList = new (GalleriesListClass[GalleriesListClass.className])({ params, config, cache })
-    galleriesList.start().then(() => $('#loader').hide())
+    const galleriesFinder = new (GalleriesFinderClass[GalleriesFinderClass.className])({ params, config, cache })
+    galleriesFinder.start().then(() => $('#loader').hide())
   } else {
     const { Gallery } = await import('./gallery.js')
 
