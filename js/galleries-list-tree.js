@@ -32,8 +32,6 @@ export class GalleriesListTree {
 
     const basePaths = typeof config.path.galleries === 'string' ? [config.path.galleries] : config.path.galleries
 
-    // const listing =
-
     const listFolder = async function* (folderPath, quick = true) {
       console.log(`Listing folder ${folderPath}`)
       const storageKey = 'folders'
@@ -68,9 +66,18 @@ export class GalleriesListTree {
       }
     }
 
-    const hasThumbs = (folderPath) => hasItem(folderPath, thumbsFolder)
+    const hasDir = async (folderPath, dirName) => {
+      for (const dirItem of await listFolder(folderPath)) {
+        if (dirName === dirItem) {
+          return true
+        }
+        return false
+      }
+    }
 
-    const hasGallery = (folderPath) => hasItem(folderPath, galleryFolder)
+    const hasThumbs = (folderPath) => hasDir(folderPath, thumbsFolder)
+
+    const hasGallery = (folderPath) => hasDir(folderPath, galleryFolder)
 
     const filterGalleries = async function* (bPath) {
 

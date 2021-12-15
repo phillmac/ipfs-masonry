@@ -79,7 +79,9 @@ $(document).ready(async function ($) {
       hasitem: () => import('./galleries-list-has-item.js')
     }[config?.galleriesFinder || 'ls']())
 
-    const galleriesFinder = new (GalleriesFinderClass[GalleriesFinderClass.className])({ params, config, cache })
+    const fetchline = await import('./fetchline/index.js')
+
+    const galleriesFinder = new (GalleriesFinderClass[GalleriesFinderClass.className])({ params, config, cache, fetchline })
     galleriesFinder.start().then(() => $('#loader').hide())
   } else {
     const { Gallery } = await import('./gallery.js')
