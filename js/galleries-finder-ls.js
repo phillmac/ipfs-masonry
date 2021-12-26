@@ -22,30 +22,25 @@ async function* callApiEndpoints(endPoints) {
   })
 }
 
-const addGallery = (gallery, urlParams) => {
-  const queryParams = this.getQueryParams({ gallery, page: 1, urlParams })
+export const className = 'GalleriesFinderLS'
 
-  $('#galleries-list').append(`<div class="page-links"><a href="?${queryParams}">${gallery}</a><br></div>`)
-  $('#galleries-list').append($('#galleries-list').children().detach().sort((a, b) => {
-    const atxt = a.textContent.toLowerCase()
-    const btxt = b.textContent.toLowerCase()
-    if (atxt === btxt) return 0
-    if (atxt > btxt) return 1
-    if (atxt < btxt) return -1
-  }))
-}
-
-export const className = 'GalleriesListHasItem'
-
-export class GalleriesListHasItem {
+export class GalleriesFinderLS {
   constructor({ params, config, cache }) {
     const folderCacheTTL = config?.cache?.TTL?.folders || 604800
     const cacheDisabled = Object.keys(config.cache?.disable).filter((k) => config.cache?.disable?.[k] === true)
     const galleryFolder = config?.path?.names?.[params.galleryFolderName] || 'gallery'
     const thumbsFolder = config?.path?.names?.thumbs || 'thumbs'
 
-
     const basePaths = typeof config.path.galleries === 'string' ? [config.path.galleries] : config.path.galleries
+
+    const apiDisableCurrentHost = Boolean(
+      Object.keys(config.api.disabledHostNames)
+        .filter(hn => config.api.disabledHostNames[hn])
+        .find(hn => window.location.hostname.includes(hn)))
+    const enabledApiHosts = Object.keys(config.api.hosts)
+      .filter(h => config.api.hosts[h])
+    const apiHosts = apiDisableCurrentHost ? enabledApiHosts : [...new Set([window.location.origin, ...enabledApiHosts])]
+
 
     const listFolder = async function* (folderPath, quick = true) {
       console.log(`Listing folder ${folderPath}`)
@@ -79,38 +74,11 @@ export class GalleriesListHasItem {
           }
         }
       }
+      console.log(`Finished listing folder ${folderPath}`)
     }
 
     const hasItem = async (folderPath, itemName) => {
-      const policyEnabled = ['fallback', 'has-item-only', 'true', 'enabled']
-
-      if (policyEnabled.includes(config.api?.endpoints?.hasitem?.policy)) {
-        const cachePath = `${folderPath} . ${itemName}`
-        if (cacheDisabled.includes('has-item')) {
-          console.debug('has-item cache is disabled')
-        } else {
-          const cacheResult = await cache.getWithExpiry('has-item', cachePath)
-          if (cacheResult === true || cacheResult === false) {
-            return cacheResult
-          }
-        }
-        const hasitemApiHosts = apiHosts.filter((h) => config.api?.endpoints?.hasitem?.hosts?.[h] === true)
-        if (hasitemApiHosts.length >= 1) {
-          const endPoints = hasitemApiHosts.map(api => `${api}/${config.api.path}/hasitem?path=${folderPath}&item=${itemName}`)
-          for await (const apiResponse of callApiEndpoints(endPoints)) {
-            if (apiResponse === true || apiResponse === false) {
-              cache.setWithExpiry('has-item', cachePath, apiResponse, hasItemCacheTTL)
-              return apiResponse
-            }
-          }
-        }
-
-        if (config.api?.endpoints?.hasitem?.policy === 'has-item-only') {
-          throw new Error('Has item api fail')
-        }
-      }
-
-      for await (const item of listFolder(folderPath, itemType)) {
+      for await (const item of listFolder(folderPath)) {
         if (item === itemName) {
           return true
         }
@@ -135,13 +103,40 @@ export class GalleriesListHasItem {
       }
     }
 
+    const getQueryParams = ({ gallery, page, urlParams }) => {
+      const queryParams = new URLSearchParams()
+      queryParams.append('galleryname', gallery)
+      if (!(config?.pagination?.disabled)) {
+        queryParams.append('page', page)
+      }
+      for (const k of Object.keys(urlParams)) {
+        if (urlParams[k] !== undefined) {
+          queryParams.set(k, urlParams[k])
+        }
+      }
+      return queryParams.toString()
+    }
+
+    const addGallery = (gallery, urlParams) => {
+      const queryParams = getQueryParams({ gallery, page: 1, urlParams })
+
+      $('#galleries-list').append(`<div class="page-links"><a href="?${queryParams}">${gallery}</a><br></div>`)
+      $('#galleries-list').append($('#galleries-list').children().detach().sort((a, b) => {
+        const atxt = a.textContent.toLowerCase()
+        const btxt = b.textContent.toLowerCase()
+        if (atxt === btxt) return 0
+        if (atxt > btxt) return 1
+        if (atxt < btxt) return -1
+      }))
+    }
+
     this.start = async () => {
       const existing = new Set()
 
       for (const bPath of basePaths) {
         for await (const gallery of filterGalleries(bPath)) {
           if (!existing.has(gallery)) {
-            addGallery(gallery, { preview: params.preview, galleriespath: galPath })
+            addGallery(gallery, { preview: params.preview, galleriespath: bPath })
             existing.add(gallery)
           }
         }

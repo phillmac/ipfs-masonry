@@ -21,10 +21,9 @@ async function* callApiEndpoints(endPoints) {
     }
   })
 }
+export const className = 'GalleriesFinderTree'
 
-export const className = 'GalleriesListLS'
-
-export class GalleriesListLS {
+export class GalleriesFinderTree {
   constructor({ params, config, cache }) {
     const folderCacheTTL = config?.cache?.TTL?.folders || 604800
     const cacheDisabled = Object.keys(config.cache?.disable).filter((k) => config.cache?.disable?.[k] === true)
@@ -40,11 +39,12 @@ export class GalleriesListLS {
     const enabledApiHosts = Object.keys(config.api.hosts)
       .filter(h => config.api.hosts[h])
     const apiHosts = apiDisableCurrentHost ? enabledApiHosts : [...new Set([window.location.origin, ...enabledApiHosts])]
+    const treeApiHosts = apiHosts.filter((h) => config.api?.endpoints?.tree?.hosts?.[h] === true)
 
 
     const listFolder = async function* (folderPath, quick = true) {
       console.log(`Listing folder ${folderPath}`)
-      const storageKey = 'folders'
+      const storageKey = 'tree'
       const cacheTTL = folderCacheTTL
       const localResults = []
 
@@ -58,7 +58,7 @@ export class GalleriesListLS {
       if (!(quick && localResults.length > 0)) {
         console.debug(`Slow ${folderPath} quick: ${quick} length: ${localResults.length}`)
 
-        const endPoints = apiHosts.map(api => `${api}/${config.api.path}/ls?arg=${folderPath}`)
+        const endPoints = treeApiHosts.map(api => `${api}/${config.api.path}/tree?path=${folderPath}`)
 
         for await (const apiResponse of callApiEndpoints(endPoints)) {
           if (apiResponse.Objects) {
@@ -74,21 +74,20 @@ export class GalleriesListLS {
           }
         }
       }
-      console.log(`Finished listing folder ${folderPath}`)
     }
 
-    const hasItem = async (folderPath, itemName) => {
-      for await (const item of listFolder(folderPath)) {
-        if (item === itemName) {
+    const hasDir = async (folderPath, dirName) => {
+      for await (const dirItem of listFolder(folderPath)) {
+        if (dirName === dirItem) {
           return true
         }
+        return false
       }
-      return false
     }
 
-    const hasThumbs = (folderPath) => hasItem(folderPath, thumbsFolder)
+    const hasThumbs = (folderPath) => hasDir(folderPath, thumbsFolder)
 
-    const hasGallery = (folderPath) => hasItem(folderPath, galleryFolder)
+    const hasGallery = (folderPath) => hasDir(folderPath, galleryFolder)
 
     const filterGalleries = async function* (bPath) {
 

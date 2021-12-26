@@ -74,9 +74,9 @@ $(document).ready(async function ($) {
     console.debug({ galleriesFinder: config?.galleriesFinder })
 
     const GalleriesFinderClass = await ({
-      tree: () => import('./galleries-list-tree.js'),
-      ls: () => import('./galleries-list-ls.js'),
-      hasitem: () => import('./galleries-list-has-item.js')
+      tree: () => import('./galleries-finder-tree.js'),
+      ls: () => import('./galleries-finder-ls.js'),
+      hasitem: () => import('./galleries-finder-has-item.js')
     }[config?.galleriesFinder || 'ls']())
 
     const fetchline = await import('./fetchline/index.js')
