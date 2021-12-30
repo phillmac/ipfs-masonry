@@ -36,7 +36,7 @@ export class GalleriesFinderLS {
     const apiDisableCurrentHost = Boolean(
       Object.keys(config.api.disabledHostNames)
         .filter(hn => config.api.disabledHostNames[hn])
-        .find(hn => window.location.hostname.includes(hn)))
+        .find(hn => window.location.hostname.match(hn)))
     const enabledApiHosts = Object.keys(config.api.hosts)
       .filter(h => config.api.hosts[h])
     const apiHosts = apiDisableCurrentHost ? enabledApiHosts : [...new Set([window.location.origin, ...enabledApiHosts])]
