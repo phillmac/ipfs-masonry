@@ -40,17 +40,21 @@ $(document).ready(async function ($) {
     import('./cache/cache.js'),
     import('./cache/idb/index.js'),
     import('../../settings/config/config.js'),
-    import('./fetchline/index.js'),
-    import('./utils.js')
+    // import('./fetchline/index.js'),
+    // import('./utils.js')
   ])
   const [
     { version },
     { localStoreCache, indexedDBCache },
     { openDB },
     { Config },
-    { fetchline },
-    { utils }
+    // { fetchline },
+    // { utils }
   ] = imports
+
+  const fetchline = import('./fetchline/index.js')
+  const utils = import('./utils.js')
+
   const conf = new Config({ params })
   await conf.migrate()
   const config = await conf.get()
