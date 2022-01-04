@@ -25,7 +25,7 @@ async function* callApiEndpoints(endPoints) {
 export const className = 'GalleriesFinderLS'
 
 export class GalleriesFinderLS {
-  constructor({ params, config, cache }) {
+  constructor({ params, config, cache, fetchline, utils }) {
     const folderCacheTTL = config?.cache?.TTL?.folders || 604800
     const cacheDisabled = Object.keys(config.cache?.disable).filter((k) => config.cache?.disable?.[k] === true)
     const galleryFolder = config?.path?.names?.[params.galleryFolderName] || 'gallery'
@@ -33,14 +33,7 @@ export class GalleriesFinderLS {
 
     const basePaths = typeof config.path.galleries === 'string' ? [config.path.galleries] : config.path.galleries
 
-    const apiDisableCurrentHost = Boolean(
-      Object.keys(config.api.disabledHostNames)
-        .filter(hn => config.api.disabledHostNames[hn])
-        .find(hn => window.location.hostname.match(hn)))
-    const enabledApiHosts = Object.keys(config.api.hosts)
-      .filter(h => config.api.hosts[h])
-    const apiHosts = apiDisableCurrentHost ? enabledApiHosts : [...new Set([window.location.origin, ...enabledApiHosts])]
-
+    const apiHosts = utils.APIHosts({ params, config })
 
     const listFolder = async function* (folderPath, quick = true) {
       console.log(`Listing folder ${folderPath}`)
@@ -58,7 +51,7 @@ export class GalleriesFinderLS {
       if (!(quick && localResults.length > 0)) {
         console.debug(`Slow ${folderPath} quick: ${quick} length: ${localResults.length}`)
 
-        const endPoints = apiHosts.map(api => `${api}/${config.api.path}/ls?arg=${folderPath}`)
+        const endPoints = apiHosts.getEndPoints('ls', { arg: folderPath })
 
         for await (const apiResponse of callApiEndpoints(endPoints)) {
           if (apiResponse.Objects) {
