@@ -40,7 +40,7 @@ $(document).ready(async function ($) {
     import('./cache/cache.js'),
     import('./cache/idb/index.js'),
     import('../../settings/config/config.js'),
-    // import('./fetchline/index.js'),
+    import('./fetchline/index.js'),
     import('./utils.js')
   ])
   const [
@@ -48,8 +48,8 @@ $(document).ready(async function ($) {
     { localStoreCache, indexedDBCache },
     { openDB },
     { Config },
-    { fetchline },
-    { APIHosts }
+    fetchline,
+    utils
   ] = imports
 
   const conf = new Config({ params })
@@ -84,7 +84,7 @@ $(document).ready(async function ($) {
       hasitem: () => import('./galleries-finder-has-item.js')
     }[config?.galleriesFinder || 'ls']())
 
-    const galleriesFinder = new (GalleriesFinderClass[GalleriesFinderClass.className])({ params, config, cache, fetchline, utils: { APIHosts } })
+    const galleriesFinder = new (GalleriesFinderClass[GalleriesFinderClass.className])({ params, config, cache, fetchline, utils })
     galleriesFinder.start().then(() => $('#loader').hide())
   } else {
     const { Gallery } = await import('./gallery.js')
