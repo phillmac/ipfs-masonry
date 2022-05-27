@@ -23,7 +23,7 @@ export class APIHosts {
 					queryParams.set(k, urlParams[k])
 				}
 			}
-			const apiRoute = `${config.api.path}/${config.api[endPointName].route}`
+			const apiRoute = `${config.api.path}/${config.api.endpoints[endPointName].route}`
 
 			const endpPointsList = config.api?.endpoints[endPointName]?.hosts
 			const enabledApiHosts = Object.keys(endpPointsList)
