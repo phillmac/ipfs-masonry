@@ -48,12 +48,9 @@ $(document).ready(async function ($) {
     { localStoreCache, indexedDBCache },
     { openDB },
     { Config },
-    // { fetchline },
-    { utils }
+    { fetchline },
+    { APIHosts }
   ] = imports
-
-  const fetchline = await import('./fetchline/index.js')
-  const { APIHosts } = utils
 
   const conf = new Config({ params })
   await conf.migrate()
