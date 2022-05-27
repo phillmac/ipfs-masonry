@@ -53,7 +53,7 @@ $(document).ready(async function ($) {
   ] = imports
 
   const fetchline = import('./fetchline/index.js')
-  const utils = import('./utils.js')
+  const { APIHosts } = import('./utils.js')
 
   const conf = new Config({ params })
   await conf.migrate()
@@ -87,7 +87,7 @@ $(document).ready(async function ($) {
       hasitem: () => import('./galleries-finder-has-item.js')
     }[config?.galleriesFinder || 'ls']())
 
-    const galleriesFinder = new (GalleriesFinderClass[GalleriesFinderClass.className])({ params, config, cache, fetchline, utils })
+    const galleriesFinder = new (GalleriesFinderClass[GalleriesFinderClass.className])({ params, config, cache, fetchline, utils: { APIHosts } })
     galleriesFinder.start().then(() => $('#loader').hide())
   } else {
     const { Gallery } = await import('./gallery.js')
