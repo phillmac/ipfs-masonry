@@ -33,7 +33,7 @@ export class GalleriesFinderLS {
 
     const basePaths = typeof config.path.galleries === 'string' ? [config.path.galleries] : config.path.galleries
 
-    const apiHosts = utils.APIHosts({ params, config })
+    const apiHosts = new utils.APIHosts({ params, config })
 
     const listFolder = async function* (folderPath, quick = true) {
       console.log(`Listing folder ${folderPath}`)
