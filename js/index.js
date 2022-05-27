@@ -41,7 +41,7 @@ $(document).ready(async function ($) {
     import('./cache/idb/index.js'),
     import('../../settings/config/config.js'),
     // import('./fetchline/index.js'),
-    // import('./utils.js')
+    import('./utils.js')
   ])
   const [
     { version },
@@ -49,11 +49,11 @@ $(document).ready(async function ($) {
     { openDB },
     { Config },
     // { fetchline },
-    // { utils }
+    { utils }
   ] = imports
 
-  const fetchline = import('./fetchline/index.js')
-  const { APIHosts } = import('./utils.js')
+  const fetchline = await import('./fetchline/index.js')
+  const { APIHosts } = utils
 
   const conf = new Config({ params })
   await conf.migrate()
