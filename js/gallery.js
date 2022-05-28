@@ -1,5 +1,5 @@
 export class Gallery {
-  constructor({ params, config, cache }) {
+  constructor({ params, config, cache, utils }) {
     console.debug({ params, config })
 
     class QueryablePromise extends Promise {
@@ -31,13 +31,7 @@ export class Gallery {
     const resolveCacheTTL = config?.cache?.TTL?.resolve || 2592000
     const cacheDisabled = Object.keys(config.cache?.disable).filter((k) => config.cache?.disable?.[k] === true)
 
-    const apiDisableCurrentHost = Boolean(
-      Object.keys(config.api.disabledHostNames)
-        .filter(hn => config.api.disabledHostNames[hn])
-        .find(hn => window.location.hostname.includes(hn)))
-    const enabledApiHosts = Object.keys(config.api.hosts)
-      .filter(h => config.api.hosts[h])
-    const apiHosts = apiDisableCurrentHost ? enabledApiHosts : [...new Set([window.location.origin, ...enabledApiHosts])]
+    const apiHosts = new utils.APIHosts({ params, config })
 
     const doFetch = (url, options = {}) => fetch(url, { referrerPolicy: 'no-referrer', ...options })
 
@@ -101,9 +95,8 @@ export class Gallery {
       if (!(quick && localResults.length > 0)) {
         console.debug(`Slow ${folderPath} quick: ${quick} length: ${localResults.length}`)
 
-        const endPoints = apiHosts.map(api => `${api}/${config.api.path}/ls?arg=${folderPath}`)
-
-        for await (const apiResponse of callApiEndpoints(endPoints)) {
+        const lsEndPoints = apiHosts.getEndPoints('ls', { arg: folderPath })
+        for await (const apiResponse of callApiEndpoints(lsEndPoints)) {
           if (apiResponse.Objects) {
             const object = apiResponse.Objects.find(o => o.Hash === folderPath)
             const localNames = localResults.map(lr => lr.Name)
@@ -129,8 +122,8 @@ export class Gallery {
         }
       }
 
-      const endPoints = apiHosts.map(api => `${api}/${config.api.path}/resolve?arg=${itemPath}`)
-      for await (const apiResponse of callApiEndpoints(endPoints)) {
+      const resolveEndPoints = apiHosts.getEndPoints('resolve', { arg: itemPath })
+      for await (const apiResponse of callApiEndpoints(resolveEndPoints)) {
         if (apiResponse.Path) {
           const cidv0 = Multiaddr(apiResponse.Path).stringTuples()[0][1]
           const cidv1 = CidTool.base32(cidv0)
@@ -289,10 +282,9 @@ export class Gallery {
             return cacheResult
           }
         }
-        const hasitemApiHosts = apiHosts.filter((h) => config.api?.endpoints?.hasitem?.hosts?.[h] === true)
-        if (hasitemApiHosts.length >= 1) {
-          const endPoints = hasitemApiHosts.map(api => `${api}/${config.api.path}/hasitem?path=${folderPath}&item=${itemName}`)
-          for await (const apiResponse of callApiEndpoints(endPoints)) {
+        const hasItemEndpoints = apiHosts.getEndPoints('resolve', { path: folderPath, item: itemName })
+        if (hasItemEndpoints.length > 0) {
+          for await (const apiResponse of callApiEndpoints(hasItemEndpoints)) {
             if (apiResponse === true || apiResponse === false) {
               cache.setWithExpiry('has-item', cachePath, apiResponse, hasItemCacheTTL)
               return apiResponse

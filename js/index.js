@@ -89,7 +89,7 @@ $(document).ready(async function ($) {
   } else {
     const { Gallery } = await import('./gallery.js')
 
-    const gallery = new Gallery({ params, config, cache })
+    const gallery = new Gallery({ params, config, cache, utils })
     gallery.start()
 
     setTimeout(function () {
