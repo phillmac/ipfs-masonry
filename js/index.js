@@ -16,7 +16,8 @@ const getParams = () => {
     page: (val) => { result.pageNo = parseInt(val) },
     galleriespath: (val) => { result.path = { galleries: [val] } },
     preview: (val) => { result.preview = truthy.includes(val.toLowerCase()) },
-    galleriesfinder: (val) => { result.galleriesFinder = val }
+    galleriesfinder: (val) => { result.galleriesFinder = val },
+    configprofile: (val) => { result.configProfile = val }
   }
 
   for (const k of [...searchParams.keys()]) {
@@ -52,7 +53,10 @@ $(document).ready(async function ($) {
     utils
   ] = imports
 
-  const conf = new Config({ params })
+  const conf = params.configProfile ?
+    new Config({ profile: params.configProfile, params }) :
+    new Config({ params })
+
   await conf.migrate()
   const config = await conf.get()
 
