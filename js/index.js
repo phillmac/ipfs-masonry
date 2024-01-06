@@ -69,7 +69,7 @@ $(document).ready(async function ($) {
     document.title = 'IPFS Archive v' + version
   }
 
-  const CacheClass = { local: localStoreCache, idb: indexedDBCache }[config.cache?.storage || 'local']
+  const CacheClass = { local: localStoreCache, idb: indexedDBCache }[config.cache?.storage ?? 'local']
 
   const cache = new (CacheClass)({ params, conf, openDB })
   cache?.init && await cache.init()
