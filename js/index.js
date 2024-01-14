@@ -48,12 +48,12 @@ $(document).ready(async function ($) {
   await Promise.all(Object.values(importList))
 
 
-  const { version } = importList['version']
-  const { localStoreCache, indexedDBCache } = importList['cache']
-  const { openDB } = importList['idb']
-  const { Config } = importList['config']
-  const fetchline = importList['fetchline']
-  const utils = importList['utils']
+  const { version } = await importList['version']
+  const { localStoreCache, indexedDBCache } = await importList['cache']
+  const { openDB } = await importList['idb']
+  const { Config } = await importList['config']
+  const fetchline = await importList['fetchline']
+  const utils = await importList['utils']
 
   const conf = params.configProfile ?
     new Config({ profile: params.configProfile, params }) :
