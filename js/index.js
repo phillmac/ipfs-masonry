@@ -69,7 +69,9 @@ $(document).ready(async function ($) {
     document.title = 'IPFS Archive v' + version
   }
 
-  const CacheClass = { 'local': localStoreCache, 'idb': indexedDBCache }[config.cache?.storage ?? 'local']
+  const CacheClassList = { 'local': localStoreCache, 'idb': indexedDBCache }
+  const CacheClassName = config.cache?.storage ?? 'local'
+  const CacheClass = CacheClassList[CacheClassName]
 
   const cache = new (CacheClass)({ params, conf, openDB })
   cache?.init && await cache.init()
@@ -82,11 +84,15 @@ $(document).ready(async function ($) {
 
     console.debug({ galleriesFinder: config?.galleriesFinder })
 
-    const GalleriesFinderClass = await ({
-      tree: () => import('./galleries-finder-tree.js'),
-      ls: () => import('./galleries-finder-ls.js'),
-      hasitem: () => import('./galleries-finder-has-item.js')
-    }[config?.galleriesFinder || 'ls']())
+    const GalleriesFinderList = {
+      'tree': () => import('./galleries-finder-tree.js'),
+      'ls': () => import('./galleries-finder-ls.js'),
+      'hasitem': () => import('./galleries-finder-has-item.js')
+    }
+
+    const GalleriesFinderName = config?.galleriesFinder ?? 'ls'
+    const GalleriesFinderLoader = GalleriesFinderList[GalleriesFinderName]
+    const GalleriesFinderClass = await GalleriesFinderLoader()
 
     const galleriesFinder = new (GalleriesFinderClass[GalleriesFinderClass.className])({ params, config, cache, fetchline, utils })
     galleriesFinder.start().then(() => $('#loader').hide())
