@@ -36,22 +36,24 @@ $(document).ready(async function ($) {
 
   $('.nav-item').filter((idx, elem) => elem.textContent.trim().toLowerCase() === params.galleryFolderName).addClass('active')
 
-  const imports = await Promise.all([
-    import('./version.js'),
-    import('./cache/cache.js'),
-    import('./cache/idb/index.js'),
-    import('../../settings/config/config.js'),
-    import('./fetchline/index.js'),
-    import('./utils.js')
-  ])
-  const [
-    { version },
-    { localStoreCache, indexedDBCache },
-    { openDB },
-    { Config },
-    fetchline,
-    utils
-  ] = imports
+  const importList = {
+    'version': import('./version.js'),
+    'cache': import('./cache/cache.js'),
+    'idb': import('./cache/idb/index.js'),
+    'config': import('../../settings/config/config.js'),
+    'fetchline': import('./fetchline/index.js'),
+    'utils': import('./utils.js')
+  }
+
+  await Promise.all(Object.values(importList))
+
+
+  const { version } = importList['version']
+  const { localStoreCache, indexedDBCache } = importList['cache']
+  const { openDB } = importList['idb']
+  const { Config } = importList['config']
+  const fetchline = importList['fetchline']
+  const utils = importList['utils']
 
   const conf = params.configProfile ?
     new Config({ profile: params.configProfile, params }) :
