@@ -38,7 +38,7 @@ $(document).ready(async function ($) {
 
   const importList = {
     'version': import('./version.js'),
-    'cache': import('./cache/cache.js'),
+    'cache': import('./cache/cache-v2.js'),
     'idb': import('./cache/idb/index.js'),
     'config': import('../../settings/config/config.js'),
     'fetchline': import('./fetchline/index.js'),
