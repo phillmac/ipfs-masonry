@@ -146,23 +146,40 @@ export class Gallery {
       return results
     }
 
-    this.displayGallery = async (galleryPath) => {
+    this.displayGallery = async ({ galleriesPath, fullGalleryPath }) => {
+
       const specialFileNames = Object.keys(config.path?.files)
         .map(k => config.path?.files[k])
         .filter(v => typeof v === 'string')
+
       console.debug({ specialFileNames })
-      const galleryContents = (await this.listGallery(galleryPath))
+
+      const galleryContents = (await this.listGallery(fullGalleryPath))
         .filter(fn => !(specialFileNames.includes(fn)))
+
       const galleryPage = usePagination
         ? galleryContents
           .slice(params.pageNo * itemsPerPage - itemsPerPage, params.pageNo * itemsPerPage)
         : galleryContents
+
       const hasVideo = galleryPage.some(i => config.gateway.useAlternateExtentions.some(e => i.includes(e)))
+
       const gatewayHost = hasVideo
         ? config.gateway.hosts.alternate
         : config.gateway.hosts.primary
 
-      const gateway = config.gateway.useOrigin ? window.location.origin : `https://${gatewayHost}`
+      const useOrigin = () => {
+        const gatewayDisableCurrentHost = Boolean(
+          Object.keys(config.gateway.disabledHostNames)
+            .filter(hn => config.gateway.disabledHostNames[hn])
+            .find(hn => window.location.hostname.match(hn))
+        )
+
+        return gatewayDisableCurrentHost ? false : config.gateway.useOrigin
+
+      }
+
+      const gateway = useOrigin() ? window.location.origin : `https://${gatewayHost}`
       console.debug({ gateway })
 
       if (usePagination) {
@@ -198,15 +215,28 @@ export class Gallery {
       }
 
       const buildGallery = async () => {
+        let authorTextRendered
+        const authorFile = config.path?.files?.authortext ?? 'authortext.md'
+
+        try {
+          const galleriesPathResolved = await this.resolvePath(galleriesPath)
+          const authorTextPath = `${gateway}/ipfs/${galleriesPathResolved}/${authorFile}`
+          authorTextRendered = await utils.renderMD(authorTextPath)
+
+        } catch (err) {
+          console.error(err)
+          authorTextRendered = ''
+        }
+
         return {
-          author: 'DeviantArt IPFS Archive',
+          author: authorTextRendered,
           description: '',
           galleries: [
             {
               thumbs_dir: params.preview ? '' : `/${thumbsFolder}`,
               thumbs_ext: params.preview ? '' : config?.path?.files?.extentions?.thumbs || '.jpg',
               gateway,
-              cidv1: await this.resolvePath(galleryPath),
+              cidv1: await this.resolvePath(fullGalleryPath),
               title: params.galleryName,
               text: config.path?.files?.text,
               folders: [
@@ -224,13 +254,8 @@ export class Gallery {
         for (const galleryItem of json.galleries) {
           if (galleryItem.text) {
             try {
-              const response = await doFetch(`${gateway}/ipfs/${galleryItem.cidv1}/${galleryItem.text}`)
-              if (response.status === 200) {
-                const text = await response.text()
-                galleryItem.text = this.md.render(text)
-              } else {
-                galleryItem.text = ''
-              }
+              galleryItem.text = await utils.renderMD(`${gateway}/ipfs/${galleryItem.cidv1}/${galleryItem.text}`)
+
             } catch {
               galleryItem.text = ''
             }
@@ -324,7 +349,7 @@ export class Gallery {
         console.debug({ galleriesPath, fullGalleryPath })
         const urlParams = { preview: params.preview, galleriespath: galleriesPath }
 
-        await this.displayGallery(fullGalleryPath)
+        await this.displayGallery({ galleriesPath, fullGalleryPath })
 
         $('#loader').hide()
         if (usePagination) {
@@ -376,12 +401,5 @@ export class Gallery {
         $('#loader').hide()
       }
     }
-
-    this.md = window.markdownit({
-      xhtmlOut: true,
-      breaks: true,
-      linkify: true,
-      typographer: true
-    })
   }
 }

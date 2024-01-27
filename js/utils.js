@@ -1,3 +1,11 @@
+const md = window.markdownit({
+	xhtmlOut: true,
+	breaks: true,
+	linkify: true,
+	typographer: true
+})
+
+
 export class APIHosts {
 	constructor({ params, config }) {
 		const hostNameLookups = config.api?.hostNameLookups
@@ -32,4 +40,17 @@ export class APIHosts {
 			return hosts.map(h => `${h}/${apiRoute}?${queryParams.toString()}`)
 		}
 	}
+}
+
+export async function renderMD(mdpath) {
+
+	const response = await doFetch(mdpath)
+
+	if (response.status === 200) {
+		const text = await response.text()
+		return md.render(text)
+	}
+
+	return ''
+
 }
