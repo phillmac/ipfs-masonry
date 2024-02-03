@@ -1,5 +1,7 @@
 export class API {
 	constructor({ config, utils }) {
+		const cacheDisabled = Object.keys(config.cache?.disable).filter((k) => config.cache?.disable?.[k] === true)
+
 		const hostNameLookups = config.api?.hostNameLookups
 			.filter(i => i.enabled)
 
