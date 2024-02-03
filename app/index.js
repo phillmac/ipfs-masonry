@@ -41,7 +41,7 @@ $(document).ready(async function ($) {
     'cache': import('./cache/cache-v2.js'),
     'idb': import('./cache/idb/index.js'),
     'config': import('../../settings/config/config.js'),
-    'fetchline': import('./fetchline/index.js'),
+    'fetchline': import('../assets/js/fetchline/index.js'),
     'utils': import('./utils.js'),
     'api': import('./api.js')
   }
