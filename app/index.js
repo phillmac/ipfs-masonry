@@ -42,11 +42,11 @@ $(document).ready(async function ($) {
     'idb': import('./cache/idb/index.js'),
     'config': import('../../../settings/config/config.js'),
     'fetchline': import('./fetchline/index.js'),
-    'utils': import('./utils.js')
+    'utils': import('./utils.js'),
+    'api': import('./api.js')
   }
 
   await Promise.all(Object.values(importList))
-
 
   const { version } = await importList['version']
   const { localStoreCache, indexedDBCache } = await importList['cache']
@@ -54,6 +54,7 @@ $(document).ready(async function ($) {
   const { Config } = await importList['config']
   const fetchline = await importList['fetchline']
   const utils = await importList['utils']
+  const API = await importList['api']
 
   const conf = params.configProfile ?
     new Config({ profile: params.configProfile, params }) :
@@ -76,7 +77,11 @@ $(document).ready(async function ($) {
   const CacheClass = CacheClassList[CacheClassName]
 
   const cache = new (CacheClass)({ params, conf, openDB })
-  cache?.init && await cache.init()
+  if (cache?.init) {
+    await cache.init()
+  }
+
+  const api = new API({ params, config, cache })
 
   const gallName = params?.galleryName
   console.debug({ gallName })
@@ -96,12 +101,12 @@ $(document).ready(async function ($) {
     const GalleriesFinderLoader = GalleriesFinderList[GalleriesFinderName]
     const GalleriesFinderClass = await GalleriesFinderLoader()
 
-    const galleriesFinder = new (GalleriesFinderClass[GalleriesFinderClass.className])({ params, config, cache, fetchline, utils })
+    const galleriesFinder = new (GalleriesFinderClass[GalleriesFinderClass.className])({ params, config, cache, fetchline, utils, api })
     galleriesFinder.start().then(() => $('#loader').hide())
   } else {
     const { Gallery } = await import('./gallery.js')
 
-    const gallery = new Gallery({ params, config, cache, utils })
+    const gallery = new Gallery({ params, config, cache, utils, api })
     gallery.start()
 
     setTimeout(function () {
