@@ -7,8 +7,6 @@ export class Gallery {
     const itemsPerPage = config?.pagination?.itemsPerPage ?? 20
     const galleryFolder = config?.path?.names?.[params.galleryFolderName] ?? 'gallery'
     const thumbsFolder = config?.path?.names?.thumbs ?? 'thumbs'
-    const resolveCacheTTL = config?.cache?.TTL?.resolve ?? 2592000
-    const cacheDisabled = Object.keys(config.cache?.disable).filter((k) => config.cache?.disable?.[k] === true)
 
     const apiHosts = new utils.APIHosts({ params, config })
 
@@ -46,26 +44,7 @@ export class Gallery {
       return result
     }
 
-    this.resolvePath = async (itemPath) => {
-      if (cacheDisabled.includes('resolve)')) {
-        console.debug('resolve cache is disabled')
-      } else {
-        const localResult = await cache.getWithExpiry('resolve', itemPath)
-        if (localResult) {
-          return localResult
-        }
-      }
 
-      const resolveEndPoints = apiHosts.getEndPoints('resolve', { arg: itemPath })
-      for await (const apiResponse of callApiEndpoints(resolveEndPoints)) {
-        if (apiResponse.Path) {
-          const cidv0 = Multiaddr(apiResponse.Path).stringTuples()[0][1]
-          const cidv1 = CidTool.base32(cidv0)
-          await cache.setWithExpiry('resolve', itemPath, cidv1, resolveCacheTTL)
-          return cidv1
-        }
-      }
-    }
 
     this.listGalleries = (galleriesPath) => (new utils.folderLister({ config, apiHosts })).getList('ls', galleriesPath, 1, false)
 
@@ -153,7 +132,7 @@ export class Gallery {
         const authorFile = config.path?.files?.authortext ?? 'authortext.md'
 
         try {
-          const galleriesPathResolved = await this.resolvePath(galleriesPath)
+          const galleriesPathResolved = await api.resolvePath(galleriesPath)
           const authorTextPath = `${gateway}/ipfs/${galleriesPathResolved}/${authorFile}`
           authorTextRendered = await utils.renderMD(authorTextPath)
 
@@ -170,7 +149,7 @@ export class Gallery {
               thumbs_dir: params.preview ? '' : `/${thumbsFolder}`,
               thumbs_ext: params.preview ? '' : config?.path?.files?.extentions?.thumbs || '.jpg',
               gateway,
-              cidv1: await this.resolvePath(fullGalleryPath),
+              cidv1: await api.resolvePath(fullGalleryPath),
               title: params.galleryName,
               text: config.path?.files?.text,
               folders: [
@@ -255,7 +234,7 @@ export class Gallery {
               await this.hasGallery(`${galPath}/${gallery}`, galleryFolder) &&
               ((await this.hasThumbs(`${galPath}/${gallery}/${galleryFolder}`)) || params.preview)
             ) {
-              this.addGallery(gallery, { preview: params.preview, galleriespath: galPath })
+              utils.addGallery(gallery, { preview: params.preview, galleriespath: galPath })
               existing.add(gallery)
             }
           }

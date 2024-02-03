@@ -54,6 +54,29 @@ export class API {
 			})
 		}
 
+		this.resolvePath = async (itemPath) => {
+			if (cacheDisabled.includes('resolve)')) {
+				console.debug('resolve cache is disabled')
+			} else {
+				const localResult = await cache.getWithExpiry('resolve', itemPath)
+				if (localResult) {
+					return localResult
+				}
+			}
+
+			const resolveCacheTTL = config?.cache?.TTL?.resolve ?? 2592000
+			const resolveEndPoints = apiHosts.getEndPoints('resolve', { arg: itemPath })
+
+			for await (const apiResponse of callApiEndpoints(resolveEndPoints)) {
+				if (apiResponse.Path) {
+					const cidv0 = Multiaddr(apiResponse.Path).stringTuples()[0][1]
+					const cidv1 = CidTool.base32(cidv0)
+					await cache.setWithExpiry('resolve', itemPath, cidv1, resolveCacheTTL)
+					return cidv1
+				}
+			}
+		}
+
 		this.unpackLSResponse = function ({ apiResponse, folderPath, itemType }) {
 			if (apiResponse.Objects) {
 				const object = apiResponse.Objects.find(o => o.Hash === folderPath)
