@@ -81,7 +81,7 @@ $(document).ready(async function ($) {
     await cache.init()
   }
 
-  const api = new API({ params, config, cache })
+  const api = new API({ params, config, cache, utils })
 
   const gallName = params?.galleryName
   console.debug({ gallName })
