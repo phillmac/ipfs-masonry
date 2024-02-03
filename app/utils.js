@@ -79,7 +79,6 @@ export {
 	addGallery,
 	doFetch,
 	getQueryParams,
-	hasItem,
 	QueryablePromise,
 	renderMD,
 }
