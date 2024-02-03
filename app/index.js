@@ -40,7 +40,7 @@ $(document).ready(async function ($) {
     'version': import('./version.js'),
     'cache': import('./cache/cache-v2.js'),
     'idb': import('./cache/idb/index.js'),
-    'config': import('../../../settings/config/config.js'),
+    'config': import('../../settings/config/config.js'),
     'fetchline': import('./fetchline/index.js'),
     'utils': import('./utils.js'),
     'api': import('./api.js')
