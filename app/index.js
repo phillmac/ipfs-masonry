@@ -54,7 +54,7 @@ $(document).ready(async function ($) {
   const { Config } = await importList['config']
   const fetchline = await importList['fetchline']
   const utils = await importList['utils']
-  const API = await importList['api']
+  const { API } = await importList['api']
 
   const conf = params.configProfile ?
     new Config({ profile: params.configProfile, params }) :
