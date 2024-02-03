@@ -77,7 +77,6 @@ class QueryablePromise extends Promise {
 
 export {
 	addGallery,
-	callApiEndpoints,
 	doFetch,
 	getQueryParams,
 	hasItem,

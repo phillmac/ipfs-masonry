@@ -37,7 +37,7 @@ export class Gallery {
         }
       }
 
-      const listings = config.path.galleries.map(g => new QueryablePromise((resolve, reject) => search(g).then(r => resolve(r))))
+      const listings = config.path.galleries.map(g => new utils.QueryablePromise((resolve, reject) => search(g).then(r => resolve(r))))
 
       while (!result) {
         const temp = await Promise.race(listings.filter(p => p.status === 'Pending'))
