@@ -7,8 +7,13 @@ export class GalleriesFinderLS {
 
     const basePaths = typeof config.path.galleries === 'string' ? [config.path.galleries] : config.path.galleries
 
+    const resolveGalleryPaths = config.api?.endpoints?.resolve?.galleryPaths?.enabled ?? true
+
     const hasItem = async (folderPath, itemName) => {
-      for await (const item of api.listFolder('ls', folderPath, 1, 'folders')) {
+
+      const resolved = resolveGalleryPaths ? api.resolvePath(folderPath) : folderPath
+
+      for await (const item of api.listFolder('ls', resolved, 1, 'folders')) {
         if (item === itemName) {
           return true
         }
