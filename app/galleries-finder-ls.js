@@ -11,7 +11,7 @@ export class GalleriesFinderLS {
 
     const hasItem = async (folderPath, itemName) => {
 
-      const resolved = resolveGalleryPaths ? api.resolvePath(folderPath) : folderPath
+      const resolved = resolveGalleryPaths ? await api.resolvePath(folderPath) : folderPath
 
       for await (const item of api.listFolder('ls', resolved, 1, 'folders')) {
         if (item === itemName) {
