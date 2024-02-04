@@ -165,7 +165,7 @@ export class API {
 				}
 			}
 
-			for await (const item of listFolder(endpointName, folderPath, itemType, storageKey)) {
+			for await (const item of this.listFolder(endpointName, folderPath, itemType, storageKey)) {
 				if (item === itemName) {
 					return true
 				}
