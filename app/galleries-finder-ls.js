@@ -8,7 +8,7 @@ export class GalleriesFinderLS {
     const basePaths = typeof config.path.galleries === 'string' ? [config.path.galleries] : config.path.galleries
 
     const hasItem = async (folderPath, itemName) => {
-      for await (const item of listFolder('ls', folderPath, 1, 'folders')) {
+      for await (const item of api.listFolder('ls', folderPath, 1, 'folders')) {
         if (item === itemName) {
           return true
         }

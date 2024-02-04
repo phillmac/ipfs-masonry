@@ -1,5 +1,5 @@
 export class Gallery {
-  constructor({ params, config, cache, utils }) {
+  constructor({ params, config, cache, utils, api }) {
     console.debug({ params, config })
 
 
@@ -51,7 +51,7 @@ export class Gallery {
     this.listGallery = async (galleryPath) => {
       const results = []
       // const filter = [config.path?.files?.text]
-      for await (const item of this.listFolder('ls', galleryPath, 2, 'files')) {
+      for await (const item of api.listFolder('ls', galleryPath, 2, 'files')) {
         // if (!(filter.includes(item))) {
         results.push(item)
         // }
