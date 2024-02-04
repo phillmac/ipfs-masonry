@@ -64,7 +64,7 @@ export class API {
 				}
 			}
 
-			const resolveCacheTTL = config?.cache?.TTL?.resolve ?? 2592000
+			const resolveCacheTTL = config?.cache?.TTL?.resolve ?? 86400
 			const resolveEndPoints = apiHosts.getEndPoints('resolve', { arg: itemPath })
 
 			for await (const apiResponse of callApiEndpoints(resolveEndPoints)) {
@@ -99,6 +99,8 @@ export class API {
 
 			const localResults = []
 
+			const cacheTTL = config?.cache?.TTL[storageKey] ?? 2592000
+
 			if (cacheDisabled.includes(storageKey)) {
 				console.debug(`${storageKey} cache is disabled`)
 			} else {
@@ -130,7 +132,7 @@ export class API {
 		this.hasItem = async function (endpointName, folderPath, itemType, storageKey) {
 			const policyEnabled = ['fallback', 'has-item-only', 'true', 'enabled']
 			const policyValue = config.api?.endpoints?.hasItem?.policy
-			const hasItemCacheTTL = config?.cache?.TTL?.hasItem ?? 604800
+			const hasItemCacheTTL = config?.cache?.TTL?.hasItem ?? 2592000
 
 			if (policyEnabled.includes(policyValue)) {
 				const cachePath = `${folderPath} . ${itemName}`
