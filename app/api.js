@@ -86,7 +86,7 @@ export class API {
 
 		this.unpackApiResponse = function ({ endpointName, apiResponse, folderPath, itemType }) {
 			const unpack = {
-				'ls': () => this.unpackLSResponse({ apiResponse, folderPath })
+				'ls': () => this.unpackLSResponse({ apiResponse, folderPath, itemType })
 			}[endpointName]
 
 			return unpack()
