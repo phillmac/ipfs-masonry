@@ -46,7 +46,7 @@ export class Gallery {
 
 
 
-    this.listGalleries = (galleriesPath) => (new utils.folderLister({ config, apiHosts })).getList('ls', galleriesPath, 1, false)
+    this.listGalleries = (galleriesPath) => api.listFolder('ls', galleriesPath, 1, 'folders', false)
 
     this.listGallery = async (galleryPath) => {
       const results = []
