@@ -9,9 +9,9 @@ export class GalleriesFinderHasItem {
 
     const basePaths = typeof config.path.galleries === 'string' ? [config.path.galleries] : config.path.galleries
 
-    const hasThumbs = (folderPath) => api.hasItem(folderPath, thumbsFolder, 1)
+    const hasThumbs = (folderPath) => api.hasItem('ls', folderPath, thumbsFolder, 1, 'folders')
 
-    const hasGallery = (folderPath) => api.hasItem(folderPath, galleryFolder, 1)
+    const hasGallery = (folderPath) => api.hasItem('ls', folderPath, galleryFolder, 1, 'folders')
 
     const filterGalleries = async function* (bPath) {
 

@@ -133,7 +133,7 @@ export class API {
 			console.log(`Finished listing folder ${folderPath}`)
 		}
 
-		this.hasItem = async function (endpointName, folderPath, itemType, storageKey) {
+		this.hasItem = async function (endpointName, folderPath, itemName, itemType, storageKey) {
 			const policyEnabled = ['fallback', 'has-item-only', 'true', 'enabled']
 			const policyValue = config.api?.endpoints?.hasItem?.policy
 			const hasItemCacheTTL = config?.cache?.TTL?.hasItem ?? 2592000
