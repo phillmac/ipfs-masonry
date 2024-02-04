@@ -39,7 +39,7 @@ export class GalleriesFinderLS {
       for (const bPath of basePaths) {
         for await (const gallery of filterGalleries(bPath)) {
           if (!existing.has(gallery)) {
-            utils.addGallery(gallery, { preview: params.preview, galleriespath: bPath })
+            utils.addGallery(config, gallery, { preview: params.preview, galleriespath: bPath })
             existing.add(gallery)
           }
         }

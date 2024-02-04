@@ -32,7 +32,7 @@ export class GalleriesFinderHasItem {
       for (const bPath of basePaths) {
         for await (const gallery of filterGalleries(bPath)) {
           if (!existing.has(gallery)) {
-            addGallery(gallery, { preview: params.preview, galleriespath: galPath })
+            addGallery(config, gallery, { preview: params.preview, galleriespath: galPath })
             existing.add(gallery)
           }
         }

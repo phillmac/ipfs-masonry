@@ -195,14 +195,14 @@ export class Gallery {
         $('#loader').hide()
         if (usePagination) {
           if (params.pageNo > 1) {
-            const firstPage = utils.getQueryParams({ gallery: params.galleryName, page: 1, urlParams })
-            const prevPage = utils.getQueryParams({ gallery: params.galleryName, page: params.pageNo - 1, urlParams })
+            const firstPage = utils.getQueryParams({ config, gallery: params.galleryName, page: 1, urlParams })
+            const prevPage = utils.getQueryParams({ config, gallery: params.galleryName, page: params.pageNo - 1, urlParams })
             $('.page-links').append(`<a class="first-link" href="?${firstPage}"><<< First </a>&nbsp;&nbsp;&nbsp;&nbsp;`)
             $('.page-links').append(`<a class="prev-link" href="?${prevPage}"> < Prev</a>&nbsp;&nbsp;&nbsp;&nbsp;`)
           }
           if (params.pageNo <= params.pageMax - 1) {
-            const nextPage = utils.getQueryParams({ gallery: params.galleryName, page: params.pageNo + 1, urlParams })
-            const lastPage = utils.getQueryParams({ gallery: params.galleryName, page: params.pageMax, urlParams })
+            const nextPage = utils.getQueryParams({ config, gallery: params.galleryName, page: params.pageNo + 1, urlParams })
+            const lastPage = utils.getQueryParams({ config, gallery: params.galleryName, page: params.pageMax, urlParams })
             $('.page-links').append(`<a class="next-link "href="?${nextPage}">Next ></a>&nbsp;&nbsp;&nbsp;&nbsp;`)
             $('.page-links').append(`<a class="last-link" href="?${lastPage}">Last >>></a>`)
           }
@@ -234,7 +234,7 @@ export class Gallery {
               await this.hasGallery(`${galPath}/${gallery}`, galleryFolder) &&
               ((await this.hasThumbs(`${galPath}/${gallery}/${galleryFolder}`)) || params.preview)
             ) {
-              utils.addGallery(gallery, { preview: params.preview, galleriespath: galPath })
+              utils.addGallery(config, gallery, { preview: params.preview, galleriespath: galPath })
               existing.add(gallery)
             }
           }

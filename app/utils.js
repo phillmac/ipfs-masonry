@@ -25,7 +25,7 @@ function doFetch(url, options = {}) {
 
 
 
-function getQueryParams({ gallery, page, urlParams }) {
+function getQueryParams({ config, gallery, page, urlParams }) {
 	const queryParams = new URLSearchParams()
 	queryParams.append('galleryname', gallery)
 	if (!(config?.pagination?.disabled)) {
@@ -39,8 +39,8 @@ function getQueryParams({ gallery, page, urlParams }) {
 	return queryParams.toString()
 }
 
-function addGallery(gallery, urlParams) {
-	const queryParams = getQueryParams({ gallery, page: 1, urlParams })
+function addGallery(config, gallery, urlParams) {
+	const queryParams = getQueryParams({ config, gallery, page: 1, urlParams })
 
 	$('#galleries-list').append(`<div class="page-links"><a href="?${queryParams}">${gallery}</a><br></div>`)
 	$('#galleries-list').append($('#galleries-list').children().detach().sort((a, b) => {
@@ -51,9 +51,6 @@ function addGallery(gallery, urlParams) {
 		if (atxt < btxt) return -1
 	}))
 }
-
-
-
 
 class QueryablePromise extends Promise {
 	constructor(executor) {
