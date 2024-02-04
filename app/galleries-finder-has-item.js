@@ -22,7 +22,7 @@ export class GalleriesFinderHasItem {
       for await (const folderItem of api.listFolder('ls', resolved, 1, 'folders')) {
         const hasGalleryPath = resolveGalleryPaths ? await api.resolvePath(`${bPath}/${folderItem}`) : `${bPath}/${folderItem}`
         if (
-          await hasGallery(hasGalleryPath, galleryFolder)
+          await hasGallery(hasGalleryPath)
         ) {
           const hasThumbsPath = resolveGalleryPaths ? await api.resolvePath(`${hasGalleryPath}/${galleryFolder}`) :
             `${hasGalleryPath}/${galleryFolder}`
