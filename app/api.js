@@ -55,6 +55,8 @@ export class API {
 		}
 
 		this.resolvePath = async (itemPath) => {
+			console.log(`Resolving ${itemPath}`)
+
 			if (cacheDisabled.includes('resolve)')) {
 				console.debug('resolve cache is disabled')
 			} else {
