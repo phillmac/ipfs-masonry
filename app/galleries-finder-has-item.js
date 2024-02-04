@@ -43,7 +43,7 @@ export class GalleriesFinderHasItem {
 
         for await (const gallery of filterGalleries(resolved)) {
           if (!existing.has(gallery)) {
-            utils.addGallery(config, gallery, { preview: params.preview, galleriespath: galPath })
+            utils.addGallery(config, gallery, { preview: params.preview, galleriespath: bPath })
             existing.add(gallery)
           }
         }
