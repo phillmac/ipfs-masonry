@@ -67,7 +67,7 @@ export class API {
 			const resolveCacheTTL = config?.cache?.TTL?.resolve ?? 86400
 			const resolveEndPoints = this.getEndPoints('resolve', { arg: itemPath })
 
-			for await (const apiResponse of callApiEndpoints(resolveEndPoints)) {
+			for await (const apiResponse of this.callApiEndpoints(resolveEndPoints)) {
 				if (apiResponse.Path) {
 					const cidv0 = Multiaddr(apiResponse.Path).stringTuples()[0][1]
 					const cidv1 = CidTool.base32(cidv0)
