@@ -65,7 +65,7 @@ export class API {
 			}
 
 			const resolveCacheTTL = config?.cache?.TTL?.resolve ?? 86400
-			const resolveEndPoints = apiHosts.getEndPoints('resolve', { arg: itemPath })
+			const resolveEndPoints = this.getEndPoints('resolve', { arg: itemPath })
 
 			for await (const apiResponse of callApiEndpoints(resolveEndPoints)) {
 				if (apiResponse.Path) {
