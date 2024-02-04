@@ -82,6 +82,8 @@ export class API {
 				const object = apiResponse.Objects.find(o => o.Hash === folderPath)
 				return object.Links.filter(li => li.Type === itemType)
 			}
+
+			return []
 		}
 
 		this.unpackApiResponse = function ({ endpointName, apiResponse, folderPath, itemType }) {
