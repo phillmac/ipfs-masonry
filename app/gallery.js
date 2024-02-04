@@ -7,6 +7,8 @@ export class Gallery {
     const itemsPerPage = config?.pagination?.itemsPerPage ?? 20
     const galleryFolder = config?.path?.names?.[params.galleryFolderName] ?? 'gallery'
     const thumbsFolder = config?.path?.names?.thumbs ?? 'thumbs'
+    const resolveGalleryPaths = config.api?.endpoints?.resolve?.galleryPaths?.enabled ?? true
+
 
     /**
   * Entry point of the gallery.
@@ -25,8 +27,10 @@ export class Gallery {
 
       const search = async (g) => {
         try {
-          for await (const i of this.listGalleries(g)) {
-            if (i === params.galleryName) { return g }
+          const resolved = resolveGalleryPaths ? await api.resolvePath(g) : g
+
+          for await (const i of this.listGalleries(resolved)) {
+            if (i === params.galleryName) { return resolved }
           }
         } catch (err) {
           console.error(err)
@@ -226,7 +230,10 @@ export class Gallery {
         const existing = new Set()
         const galleriesPaths = typeof config.path.galleries === 'string' ? [config.path.galleries] : config.path.galleries
         for (const galPath of galleriesPaths) {
-          for await (const gallery of this.listGalleries(galPath)) {
+
+          const resolved = resolveGalleryPaths ? await api.resolvePath(galPath) : galPath
+
+          for await (const gallery of this.listGalleries(resolved)) {
             if (
               (!(existing.has(gallery))) &&
               await this.hasGallery(`${galPath}/${gallery}`, galleryFolder) &&
