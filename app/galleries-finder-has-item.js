@@ -3,7 +3,7 @@ const itemType = 1
 export const className = 'GalleriesFinderHasItem'
 
 export class GalleriesFinderHasItem {
-  constructor({ params, config, api }) {
+  constructor({ params, config, utils, api }) {
     const galleryFolder = config?.path?.names?.[params.galleryFolderName] ?? 'gallery'
     const thumbsFolder = config?.path?.names?.thumbs ?? 'thumbs'
 
