@@ -115,7 +115,7 @@ export class API {
 
 					const localNames = localResults.map(lr => lr.Name)
 
-					const missing = this.unpackApiResponse(endpointName, apiResponse, folderPath, itemType)
+					const missing = this.unpackApiResponse({ endpointName, apiResponse, folderPath, itemType })
 						.filter(li => !(localNames.includes(li.Name)))
 
 					if (missing.length > 0) {
