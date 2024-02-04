@@ -9,17 +9,25 @@ export class GalleriesFinderHasItem {
 
     const basePaths = typeof config.path.galleries === 'string' ? [config.path.galleries] : config.path.galleries
 
+    const resolveGalleryPaths = config.api?.endpoints?.resolve?.galleryPaths?.enabled ?? true
+
     const hasThumbs = (folderPath) => api.hasItem('ls', folderPath, thumbsFolder, 1, 'folders')
 
     const hasGallery = (folderPath) => api.hasItem('ls', folderPath, galleryFolder, 1, 'folders')
 
     const filterGalleries = async function* (bPath) {
 
-      for await (const folderItem of api.listFolder('ls', bPath, 1, 'folders')) {
+      const resolved = resolveGalleryPaths ? await api.resolvePath(bPath) : bPath
+
+      for await (const folderItem of api.listFolder('ls', resolved, 1, 'folders')) {
+        const hasGalleryPath = resolveGalleryPaths ? await api.resolvePath(`${bPath}/${folderItem}`) : `${bPath}/${folderItem}`
         if (
-          await hasGallery(`${bPath}/${folderItem}`, galleryFolder)
+          await hasGallery(hasGalleryPath, galleryFolder)
         ) {
-          if ((await hasThumbs(`${bPath}/${folderItem}/${galleryFolder}`)) || params.preview) {
+          const hasThumbsPath = resolveGalleryPaths ? await api.resolvePath(`${hasGalleryPath}/${galleryFolder}`) :
+            `${hasGalleryPath}/${galleryFolder}`
+
+          if ((await hasThumbs(hasThumbsPath)) || params.preview) {
             yield folderItem
           }
         }
@@ -30,9 +38,12 @@ export class GalleriesFinderHasItem {
       const existing = new Set()
 
       for (const bPath of basePaths) {
-        for await (const gallery of filterGalleries(bPath)) {
+
+        const resolved = resolveGalleryPaths ? await api.resolvePath(bPath) : bPath
+
+        for await (const gallery of filterGalleries(resolved)) {
           if (!existing.has(gallery)) {
-            addGallery(config, gallery, { preview: params.preview, galleriespath: galPath })
+            utils.addGallery(config, gallery, { preview: params.preview, galleriespath: galPath })
             existing.add(gallery)
           }
         }

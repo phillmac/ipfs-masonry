@@ -30,10 +30,14 @@ export class GalleriesFinderLS {
       const resolved = resolveGalleryPaths ? await api.resolvePath(bPath) : bPath
 
       for await (const folderItem of api.listFolder('ls', resolved, 1, 'folders')) {
+        const hasGalleryPath = resolveGalleryPaths ? await api.resolvePath(`${bPath}/${folderItem}`) : `${bPath}/${folderItem}`
         if (
-          await hasGallery(`${bPath}/${folderItem}`, galleryFolder)
+          await hasGallery(hasGalleryPath, galleryFolder)
         ) {
-          if ((await hasThumbs(`${bPath}/${folderItem}/${galleryFolder}`)) || params.preview) {
+          const hasThumbsPath = resolveGalleryPaths ? await api.resolvePath(`${hasGalleryPath}/${galleryFolder}`) :
+            `${hasGalleryPath}/${galleryFolder}`
+
+          if ((await hasThumbs(hasThumbsPath)) || params.preview) {
             yield folderItem
           }
         }
@@ -44,7 +48,9 @@ export class GalleriesFinderLS {
       const existing = new Set()
 
       for (const bPath of basePaths) {
-        for await (const gallery of filterGalleries(bPath)) {
+        const resolved = resolveGalleryPaths ? await api.resolvePath(bPath) : bPath
+
+        for await (const gallery of filterGalleries(resolved)) {
           if (!existing.has(gallery)) {
             utils.addGallery(config, gallery, { preview: params.preview, galleriespath: bPath })
             existing.add(gallery)
