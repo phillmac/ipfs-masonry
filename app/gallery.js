@@ -8,8 +8,6 @@ export class Gallery {
     const galleryFolder = config?.path?.names?.[params.galleryFolderName] ?? 'gallery'
     const thumbsFolder = config?.path?.names?.thumbs ?? 'thumbs'
 
-    const apiHosts = new utils.APIHosts({ params, config })
-
     /**
   * Entry point of the gallery.
   */
