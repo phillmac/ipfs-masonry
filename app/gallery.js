@@ -52,7 +52,7 @@ export class Gallery {
 
     this.listGallery = async (galleryPath) => {
       const results = []
-      const resolved = api.resolvePath(galleryPath)
+      const resolved = await api.resolvePath(galleryPath)
 
       // const filter = [config.path?.files?.text]
       for await (const item of api.listFolder('ls', resolved, 2, 'files')) {
